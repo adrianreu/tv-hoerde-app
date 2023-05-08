@@ -1,1 +1,31 @@
 // app global css in SCSS form
+.q-tab__label {
+  text-transform: none;
+}
+
+.q-layout {
+  background-color: $grey-1;
+}
+
+.rounded-borders {
+  border-radius: 10px;
+}
+
+.q-toolbar {
+  padding: 0 15px;
+}
+
+.q-layout-padding {
+  @media (max-width: $breakpoint-sm) {
+    padding: 0 15px;
+  }
+}
+
+body {
+  font-family: poppins;
+}
+
+@font-face {
+  font-family: poppins;
+  src: url(../assets/font/Poppins-Regular.ttf);
+}
