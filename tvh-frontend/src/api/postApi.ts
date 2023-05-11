@@ -2,13 +2,12 @@ import { api } from 'src/boot/axios';
 import {
   StrapiGeneral,
   StrapiImage,
-  StrapiPagination,
+  StrapiMetaPagination,
   StrapiUser,
 } from 'src/interfaces/StrapiInterfaces';
-import { mapStrapiData } from './strapiMapper';
+import { mapStrapiData, toStrapiPagination } from './strapiMapper';
 
 export interface Post extends StrapiGeneral {
-  id: number;
   text: string;
   title: string;
   author?: StrapiUser;
@@ -17,18 +16,13 @@ export interface Post extends StrapiGeneral {
 
 interface PostsSearch {
   posts: Post[];
-  pagination: {
-    page: number;
-    pageCount: number;
-    pageSize: number;
-    total: number;
-  }
+  pagination: StrapiMetaPagination
 }
 
-export async function getPosts(pagination: StrapiPagination): Promise<PostsSearch> {
+export async function getPosts(page: number, pageSize: number): Promise<PostsSearch> {
   const { data } = await api.get('/api/posts/', {
     params: {
-      ...pagination,
+      ...toStrapiPagination(page, pageSize),
       populate: '*',
     },
   });

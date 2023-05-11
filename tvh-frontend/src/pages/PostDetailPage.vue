@@ -8,11 +8,10 @@
       swipeable
       animated
       control-color="white"
-      color="secondary"
       :navigation="images?.length > 1"
       arrows
-      height="200px"
-      class="bg-grey text-white shadow-1 rounded-borders q-mb-md"
+      height="210px"
+      class="bg-transparent text-white q-mb-md"
     >
       <q-carousel-slide
         v-for="image in images"
@@ -20,13 +19,14 @@
         :name="image.id"
         class="q-pa-none"
       >
-        <div class="row fit justify-start items-center no-wrap">
-          <q-img
-            :src="image.url"
-            fit="contain"
-            ratio="4/3"
-            class="col-12 full-height"
-          ></q-img>
+        <div class="row fit justify-start items-center full-height">
+          <div class="col-12 full-height">
+            <q-img
+              :src="image.url"
+              fit="contain"
+              :ratio="16/9"
+            ></q-img>
+          </div>
         </div>
       </q-carousel-slide>
     </q-carousel>
@@ -37,11 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { date } from 'quasar';
 import { getPost, Post } from 'src/api/postApi';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import sanitizeHtml from 'sanitize-html';
+import { toGermanDate } from 'src/api/format';
 
 const route = useRoute();
 const id = computed(() => route.params.id);
@@ -65,10 +65,7 @@ async function loadPost() {
   }
 }
 
-const formattedDate = computed(() => date.formatDate(
-  date.extractDate(post?.value?.createdAt || '', 'YYYY-MM-DDTHH:mm:ss.SSSZ'),
-  'DD.MM.YYYY',
-));
+const formattedDate = computed(() => toGermanDate(post?.value?.createdAt || ''));
 
 onMounted(() => {
   loadPost();

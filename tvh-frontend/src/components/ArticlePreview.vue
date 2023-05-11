@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { date } from 'quasar';
 import { computed } from 'vue';
 import sanitizeHtml from 'sanitize-html';
+import { toGermanDate } from 'src/api/format';
 
 interface Props {
   title: string;
@@ -40,8 +40,5 @@ const cleanTitle = computed(() => sanitizeHtml(props.title, {
   allowedIframeHostnames: [],
 }));
 
-const formattedDate = computed(() => date.formatDate(
-  date.extractDate(props.createdAt, 'YYYY-MM-DDTHH:mm:ss.SSSZ'),
-  'DD.MM.YYYY',
-));
+const formattedDate = computed(() => toGermanDate(props.createdAt));
 </script>

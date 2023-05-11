@@ -1,20 +1,26 @@
 <template>
   <div class="relative">
-    <div
-      class="absolute"
-      v-if="loading"
-      style="right: 50%; top: 50%; transform: translateX(50%) translateY(50%)"
+    <transition
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+      :duration="100"
     >
-    <div class="column">
-      <q-icon
-        name="sports_volleyball"
-        color="primary"
-        size="xl"
-        class="loading-animation"
-      ></q-icon>
-      Lädt ...
-    </div>
-    </div>
+      <div
+        class="absolute"
+        v-if="loading"
+        style="right: 50%; top: 50%; transform: translateX(50%) translateY(50%)"
+      >
+        <div class="column">
+          <q-icon
+            name="sports_volleyball"
+            color="primary"
+            size="xl"
+            class="loading-animation"
+          ></q-icon>
+          Lädt ...
+        </div>
+      </div>
+    </transition>
     <div :class="{
       'loading-wrapper__overlay': loading,
     }">
@@ -36,7 +42,7 @@ withDefaults(defineProps<Props>(), {
 <style lang="scss">
 .loading-wrapper {
   &__overlay {
-    opacity: 0.2;
+    opacity: 0.1;
     z-index: 999;
   }
 }
@@ -66,7 +72,7 @@ withDefaults(defineProps<Props>(), {
   z-index: 100;
   animation-name: rolling-ball;
   animation-duration: 4s;
-  animation-delay: 1.2s;
+  // animation-delay: 1.2s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
 }

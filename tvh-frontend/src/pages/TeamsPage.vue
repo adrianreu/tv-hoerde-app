@@ -6,7 +6,7 @@
         <q-item
           clickable
           v-ripple
-          v-for="team in teams"
+          v-for="team in teamStore.getTeams"
           :key="team.id"
           @click="goToDetailPage(team)"
         >
@@ -30,33 +30,21 @@
 </template>
 
 <script setup lang="ts">
-import { Team, getTeams } from 'src/api/teamApi';
+import { Team } from 'src/api/teamApi';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
+import { useTeamStore } from 'src/stores/teamStore';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
-const teams = ref<Team[]>();
+const teamStore = useTeamStore();
 const loading = ref<boolean>(false);
 
 function goToDetailPage(team: Team) {
   router.push({ path: `/teams/${team.id}`, query: { title: team.name } });
 }
 
-async function loadTeams() {
-  try {
-    loading.value = true;
-    teams.value = await getTeams();
-  } catch (error) {
-    console.log(error);
-    // TODO error handling
-  } finally {
-    loading.value = false;
-  }
-}
-
 onMounted(() => {
-  loadTeams();
+  teamStore.fetchTeams();
 });
 </script>

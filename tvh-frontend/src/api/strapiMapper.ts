@@ -1,3 +1,5 @@
+import { StrapiPaginationParams } from 'src/interfaces/StrapiInterfaces';
+
 function mapDataObject(data: any) {
   if (!data) return undefined;
   let mappedData: any = {};
@@ -19,4 +21,16 @@ export function mapStrapiData(data: any) {
     return data.map((item) => mapDataObject(item));
   }
   return mapDataObject(data);
+}
+
+export function toStrapiPagination(
+  page: number,
+  pageSize = 10,
+  withCount = true,
+): StrapiPaginationParams {
+  return {
+    'pagination[page]': page,
+    'pagination[pageSize]': pageSize,
+    'pagination[withCount]': withCount,
+  };
 }

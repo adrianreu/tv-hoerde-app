@@ -1,20 +1,35 @@
 import { api } from 'src/boot/axios';
-import { StrapiGeneral, StrapiImage, StrapiUser } from 'src/interfaces/StrapiInterfaces';
+import { StrapiGeneral, StrapiImage } from 'src/interfaces/StrapiInterfaces';
 import { mapStrapiData } from './strapiMapper';
+import { TeamMember } from './teamMemberApi';
+import { TrainingTime } from './trainingTimeApi';
 
 export interface Team extends StrapiGeneral {
-  id: number;
   name: string;
   league?: string;
-  teamImage?: StrapiImage
+  teamImage?: StrapiImage;
+  teamMembers?: TeamMember[];
+  trainingTimes?: TrainingTime[];
 }
 
 export async function getTeams(): Promise<Team[]> {
   const { data } = await api.get('/api/teams/', {
     params: {
-      populate: '*',
+      'populate[teamImage]': '*',
     },
   });
 
   return mapStrapiData(data?.data) || [];
+}
+
+export async function getTeam(id: number | string): Promise<Team> {
+  const { data } = await api.get(`/api/teams/${id}`, {
+    params: {
+      'populate[teamImage]': '*',
+      'populate[trainingTimes][populate][0]': 'place',
+      'populate[teamMembers][populate][0]': 'image',
+    },
+  });
+
+  return mapStrapiData(data?.data);
 }

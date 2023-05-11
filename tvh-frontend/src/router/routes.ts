@@ -6,12 +6,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
-        path: '',
-        redirect: { path: '/posts' },
-      },
-      {
         path: 'posts',
-        name: 'News',
+        name: 'Beiträge',
         components: {
           default: () => import('pages/PostsPage.vue'),
           toolbar: () => import('components/toolbars/MainToolbar.vue'),
@@ -39,7 +35,7 @@ const routes: RouteRecordRaw[] = [
           default: () => import('pages/TeamDetailPage.vue'),
           toolbar: () => import('components/toolbars/BackToolbar.vue'),
         },
-        name: 'Beitrag',
+        name: 'Mannschaft',
       },
       {
         path: 'events',
@@ -56,6 +52,10 @@ const routes: RouteRecordRaw[] = [
           toolbar: () => import('components/toolbars/MainToolbar.vue'),
         },
         name: 'Anmeldung',
+      },
+      {
+        path: '',
+        redirect: { path: '/posts' },
       },
     ],
   },

@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <loading-wrapper :loading="loading">
+    <loading-wrapper :loading="loading && initialLoading">
       <div class="col q-col-gutter-md">
         <template
           v-for="post in posts"
@@ -42,7 +42,7 @@ import { useRouter } from 'vue-router';
 import usePagination from 'src/hooks/usePagination';
 import { onMounted, ref } from 'vue';
 import { Post, getPosts } from 'src/api/postApi';
-import { scroll, useQuasar } from 'quasar';
+import { scroll } from 'quasar';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
 
 const { setVerticalScrollPosition } = scroll;
@@ -50,13 +50,13 @@ const { setVerticalScrollPosition } = scroll;
 const router = useRouter();
 const posts = ref<Post[]>([]);
 const loading = ref(false);
+const initialLoading = ref(true);
 
 const {
   page,
   pageSize,
   totalPages,
   total,
-  toStrapiPagination,
 } = usePagination();
 
 pageSize.value = 10;
@@ -71,19 +71,20 @@ async function loadPage(nextPage?: number) {
   }
   try {
     loading.value = true;
-    const searchResponse = await getPosts(toStrapiPagination.value);
+    const searchResponse = await getPosts(page.value, pageSize.value);
     page.value = searchResponse.pagination.page;
     pageSize.value = searchResponse.pagination.pageSize;
     totalPages.value = searchResponse.pagination.pageCount;
     total.value = searchResponse.pagination.total;
+    loading.value = false;
     posts.value = searchResponse.posts;
+    initialLoading.value = false;
 
     setVerticalScrollPosition(window, 0, 300);
   } catch (error) {
     console.log(error);
-    // TODO error handling
-  } finally {
     loading.value = false;
+    // TODO error handling
   }
 }
 

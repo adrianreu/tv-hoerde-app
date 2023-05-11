@@ -15,7 +15,14 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <transition
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+        appear
+        :duration="200"
+      >
+        <router-view />
+      </transition>
     </q-page-container>
 
     <q-footer>

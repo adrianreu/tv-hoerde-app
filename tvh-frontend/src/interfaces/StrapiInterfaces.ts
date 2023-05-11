@@ -1,10 +1,18 @@
-export interface StrapiPagination {
+export interface StrapiPaginationParams {
   'pagination[page]'?: number,
   'pagination[pageSize]'?: number,
   'pagination[withCount]'?: boolean,
 }
 
+export interface StrapiMetaPagination {
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  total: number;
+}
+
 export interface StrapiGeneral {
+  id: number;
   createdAt: string;
   publishedAt: string;
   updatedAt: string;
