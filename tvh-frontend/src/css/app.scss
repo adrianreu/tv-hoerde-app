@@ -17,7 +17,8 @@
 
 .q-layout-padding {
   @media (max-width: $breakpoint-sm) {
-    padding: 0 15px;
+    padding-right: 15px;
+    padding-left: 15px;
   }
 }
 

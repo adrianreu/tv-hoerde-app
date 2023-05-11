@@ -5,12 +5,58 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/IndexPage.vue'), name: 'Index' },
-      { path: 'articles', component: () => import('pages/ArticlesPage.vue'), name: 'News' },
-      { path: 'articles/:id', component: () => import('pages/ArticleDetailPage.vue'), name: 'Beitrag' },
-      { path: 'teams', component: () => import('pages/TeamsPage.vue'), name: 'Mannschaften' },
-      { path: 'events', component: () => import('pages/EventsPage.vue'), name: 'Termine' },
-      { path: 'login', component: () => import('pages/LoginPage.vue'), name: 'Anmeldung' },
+      {
+        path: '',
+        redirect: { path: '/posts' },
+      },
+      {
+        path: 'posts',
+        name: 'News',
+        components: {
+          default: () => import('pages/PostsPage.vue'),
+          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+        },
+      },
+      {
+        path: 'posts/:id',
+        components: {
+          default: () => import('pages/PostDetailPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Beitrag',
+      },
+      {
+        path: 'teams',
+        components: {
+          default: () => import('pages/TeamsPage.vue'),
+          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+        },
+        name: 'Mannschaften',
+      },
+      {
+        path: 'teams/:id',
+        components: {
+          default: () => import('pages/TeamDetailPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Beitrag',
+      },
+      {
+        path: 'events',
+        components: {
+          default: () => import('pages/EventsPage.vue'),
+          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+        },
+        name: 'Termine',
+      },
+      {
+        path: 'login',
+        components: {
+          default: () => import('pages/LoginPage.vue'),
+          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+        },
+        name: 'Anmeldung',
+      },
     ],
   },
 

@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "training_times",
+  "info": {
+    "singularName": "training-time",
+    "pluralName": "training-times",
+    "displayName": "TrainingTime",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "dayOfWeek": {
+      "type": "integer"
+    },
+    "from": {
+      "type": "time"
+    },
+    "to": {
+      "type": "time"
+    },
+    "place": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::place.place"
+    },
+    "teams": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::team.team",
+      "mappedBy": "trainingTimes"
+    }
+  }
+}

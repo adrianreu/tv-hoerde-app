@@ -1,0 +1,60 @@
+{
+  "kind": "collectionType",
+  "collectionName": "team_members",
+  "info": {
+    "singularName": "team-member",
+    "pluralName": "team-members",
+    "displayName": "TeamMember",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "firstname": {
+      "type": "string"
+    },
+    "lastname": {
+      "type": "string"
+    },
+    "birthDate": {
+      "type": "date"
+    },
+    "position": {
+      "type": "enumeration",
+      "enum": [
+        "SETTER",
+        "DIAGONAL",
+        "LIBERO",
+        "MIDDLEBLOCKER",
+        "WINGATTACKER",
+        "TRAINER",
+        "CO_TRAINER"
+      ]
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "height": {
+      "type": "integer"
+    },
+    "shirtNumber": {
+      "type": "integer"
+    },
+    "teams": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::team.team",
+      "mappedBy": "teamMembers"
+    }
+  }
+}

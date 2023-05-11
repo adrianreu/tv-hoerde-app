@@ -1,15 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header class="bg-transparent row items-center" style="height: 60px">
-      <router-view name="header"></router-view>
-      <q-toolbar>
-        <q-avatar rounded>
-          <q-img src="~assets/tvhlogo.png"></q-img>
-        </q-avatar>
-        <q-toolbar-title class="text-black">
-          {{ route.name }}
-        </q-toolbar-title>
-      </q-toolbar>
+    <q-header class="bg-white row items-center" style="height: 60px">
+      <router-view name="toolbar"></router-view>
     </q-header>
 
     <q-drawer
@@ -33,7 +25,7 @@
         indicator-color="transparent"
         active-color="primary"
       >
-        <q-route-tab icon="newspaper" label="News" class="q-py-sm" to="/articles" />
+        <q-route-tab icon="newspaper" label="News" class="q-py-sm" to="/posts" />
         <q-route-tab icon="group" label="Teams" class="q-py-sm" to="/teams" />
         <q-route-tab icon="event" label="Termine" class="q-py-sm" to="/events" />
         <q-route-tab icon="login" label="Anmeldung" class="q-py-sm" to="/login" />

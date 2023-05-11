@@ -99,6 +99,16 @@ module.exports = configure((/* ctx */) => ({
   devServer: {
     // https: true
     open: true, // opens browser window automatically
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:9123/',
+        changeOrigin: true,
+      },
+      '/uploads': {
+        target: 'http://127.0.0.1:9123/',
+        changeOrigin: true,
+      },
+    },
   },
 
   // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
@@ -116,7 +126,9 @@ module.exports = configure((/* ctx */) => ({
     // directives: [],
 
     // Quasar plugins
-    plugins: [],
+    plugins: [
+      'Loading',
+    ],
   },
 
   // animations: 'all', // --- includes all animations
