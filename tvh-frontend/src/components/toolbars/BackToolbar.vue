@@ -4,7 +4,6 @@
     <q-toolbar-title class="text-black">
       {{ title }}
     </q-toolbar-title>
-    <q-btn round flat icon="edit" color="black"></q-btn>
   </q-toolbar>
 </template>
 

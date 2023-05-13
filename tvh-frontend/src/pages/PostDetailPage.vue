@@ -32,7 +32,13 @@
     </q-carousel>
     <div class="text-h6 q-mb-sm">{{ cleanTitle }}</div>
     <div class="text-grey text-caption q-mb-md">{{ post?.author }} - {{ formattedDate }}</div>
-    <div v-html="cleanText"></div>
+    <div v-html="cleanText" class="text-justify"></div>
+    <bottom-action>
+      <q-btn flat class="full-width">
+        <q-icon name="edit" class="q-mr-sm"/>
+        Bearbeiten
+      </q-btn>
+    </bottom-action>
   </q-page>
 </template>
 
@@ -42,6 +48,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import sanitizeHtml from 'sanitize-html';
 import { toGermanDate } from 'src/api/format';
+import BottomAction from 'src/components/BottomAction.vue';
 
 const route = useRoute();
 const id = computed(() => route.params.id);

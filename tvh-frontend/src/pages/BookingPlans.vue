@@ -33,22 +33,44 @@
 </template>
 
 <script setup lang="ts">
-import { Team } from 'src/api/teamApi';
+import { useEventStore } from 'src/stores/eventStore';
+import { computed, onMounted, ref } from 'vue';
+import { date } from 'quasar';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
-import { useTeamStore } from 'src/stores/teamStore';
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
 
-const router = useRouter();
-const teamStore = useTeamStore();
-const loading = ref<boolean>(false);
+// stores
+const eventStore = useEventStore();
 
-function goToDetailPage(team: Team) {
-  router.push({ path: `/teams/${team.id}`, query: { title: team.name } });
+// refs
+const activeEvents = ref<number[]>([]);
+
+// computed
+const sortedEvents = computed(() => eventStore.sortByDate);
+const events = computed(() => Object.keys(sortedEvents.value).map((key) => ({
+  header: date.isSameDate(
+    new Date(),
+    date.extractDate(key, 'DD.MM.YYYY'),
+    'date',
+  ) ? 'Heute' : key,
+  events: sortedEvents.value[key].map((happening: any) => ({
+    ...happening,
+    isActive: !!activeEvents.value.find((id) => id === happening.id),
+  })),
+})));
+
+// functions
+function toggleActiveEvent(id: number) {
+  const index = activeEvents.value.indexOf(id);
+  if (index >= 0) {
+    activeEvents.value.splice(index, 1);
+  } else {
+    activeEvents.value.push(id);
+  }
 }
 
 onMounted(() => {
-  teamStore.fetchTeams();
+  eventStore.fetchEvents();
+  console.log(events.value);
 });
 </script>

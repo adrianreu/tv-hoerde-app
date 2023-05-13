@@ -1,29 +1,56 @@
 <template>
   <q-page padding>
-    <q-form class="row q-col-gutter-md">
-      <div class="col-12">
-        <q-input
-        v-model="username"
-        label="E-Mail Adresse"
-        outlined
-        ></q-input>
-      </div>
-      <div class="col-12">
-        <q-input v-model="password"
-        outlined
-        label="Passwort"
-        ></q-input>
-      </div>
-      <div class="col-12">
-        <q-btn class="full-width" color="primary" no-caps unelevated>Anmelden</q-btn>
-      </div>
-    </q-form>
+    <loading-wrapper :loading="loading">
+      <q-form class="row q-col-gutter-md">
+        <div class="col-12">
+          <q-input
+          v-model="username"
+          label="E-Mail Adresse"
+          outlined
+          @keypress.enter="login"
+          ></q-input>
+        </div>
+        <div class="col-12">
+          <q-input v-model="password"
+            outlined
+            label="Passwort"
+            @keypress.enter="login"
+            type="password"
+          ></q-input>
+        </div>
+        <div class="col-12">
+          <q-btn
+            class="full-width"
+            color="primary"
+            no-caps
+            unelevated
+            @click="login"
+          >Anmelden</q-btn>
+        </div>
+      </q-form>
+    </loading-wrapper>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import LoadingWrapper from 'src/components/LoadingWrapper.vue';
+import { useAuthStore } from 'src/stores/authStore';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const username = ref('');
 const password = ref('');
+const loading = ref(false);
+
+async function login() {
+  loading.value = true;
+  await authStore.doLogin(username.value, password.value);
+  loading.value = false;
+  username.value = '';
+  password.value = '';
+  router.push('/posts');
+}
 </script>

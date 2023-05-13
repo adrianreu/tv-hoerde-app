@@ -25,6 +25,9 @@
         </q-item>
       </template>
     </q-list>
+    <bottom-action>
+      <q-btn flat class="full-width" icon="add">Neues Event</q-btn>
+    </bottom-action>
   </q-page>
 </template>
 
@@ -33,10 +36,16 @@ import { useEventStore } from 'src/stores/eventStore';
 import { computed, onMounted, ref } from 'vue';
 import { date } from 'quasar';
 import PlaceLink from 'src/components/PlaceLink.vue';
+import BottomAction from 'src/components/BottomAction.vue';
 import { dateToHourMinute } from '../api/format';
 
-const activeEvents = ref<number[]>([]);
+// stores
 const eventStore = useEventStore();
+
+// refs
+const activeEvents = ref<number[]>([]);
+
+// computed
 const sortedEvents = computed(() => eventStore.sortByDate);
 const events = computed(() => Object.keys(sortedEvents.value).map((key) => ({
   header: date.isSameDate(
@@ -50,6 +59,7 @@ const events = computed(() => Object.keys(sortedEvents.value).map((key) => ({
   })),
 })));
 
+// functions
 function toggleActiveEvent(id: number) {
   const index = activeEvents.value.indexOf(id);
   if (index >= 0) {

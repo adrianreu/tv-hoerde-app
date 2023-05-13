@@ -51,6 +51,12 @@
         </template>
       </div>
     </div>
+    <bottom-action>
+      <q-btn flat class="full-width">
+        <q-icon name="edit" class="q-mr-sm"/>
+        Bearbeiten
+      </q-btn>
+    </bottom-action>
   </q-page>
 </template>
 
@@ -62,6 +68,7 @@ import PlaceLink from 'src/components/PlaceLink.vue';
 import { useTeamStore } from 'src/stores/teamStore';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import BottomAction from 'src/components/BottomAction.vue';
 
 const route = useRoute();
 const teamStore = useTeamStore();

@@ -33,6 +33,9 @@
         </div>
       </div>
     </loading-wrapper>
+    <bottom-action>
+      <q-btn flat class="full-width" icon="add">Neuer Beitrag</q-btn>
+    </bottom-action>
   </q-page>
 </template>
 
@@ -44,6 +47,7 @@ import { onMounted, ref } from 'vue';
 import { Post, getPosts } from 'src/api/postApi';
 import { scroll } from 'quasar';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
+import BottomAction from 'src/components/BottomAction.vue';
 
 const { setVerticalScrollPosition } = scroll;
 

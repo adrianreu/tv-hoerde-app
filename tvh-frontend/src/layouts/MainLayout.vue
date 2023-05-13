@@ -5,12 +5,47 @@
     </q-header>
 
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-if="loggedIn"
+      v-model="drawerOpen"
       show-if-above
       bordered
       side="right"
     >
-      <q-list>
+      <q-list separator>
+        <q-item>
+          <q-item-section avatar>
+            <q-avatar rounded color="accent" text-color="white">
+              {{ user?.username?.substring(0, 1) }}
+            </q-avatar>
+          </q-item-section>
+          <q-item-section>{{ user?.username }}</q-item-section>
+        </q-item>
+        <q-separator/>
+        <q-item
+          clickable
+          v-ripple
+          to="/booking-plans"
+        >
+          <q-item-section>
+            <q-item-label>Hallenbelegungsplan</q-item-label>
+          </q-item-section>
+          <q-item-section avatar>
+            <q-icon name="chevron_right" />
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-ripple
+          @click="logout"
+        >
+          <q-item-section>
+            <q-item-label>Abmelden</q-item-label>
+          </q-item-section>
+          <q-item-section avatar>
+            <q-icon name="chevron_right" />
+          </q-item-section>
+        </q-item>
+        <q-separator/>
       </q-list>
     </q-drawer>
 
@@ -26,6 +61,8 @@
     </q-page-container>
 
     <q-footer>
+      <div id="footer-portal">
+      </div>
       <q-tabs
         dense
         class="text-black bg-white"
@@ -35,21 +72,44 @@
         <q-route-tab icon="newspaper" label="News" class="q-py-sm" to="/posts" />
         <q-route-tab icon="group" label="Teams" class="q-py-sm" to="/teams" />
         <q-route-tab icon="event" label="Termine" class="q-py-sm" to="/events" />
-        <q-route-tab icon="login" label="Anmeldung" class="q-py-sm" to="/login" />
+        <q-tab
+          v-if="loggedIn"
+          icon="menu"
+          label="Menü"
+          class="q-py-sm"
+          @click="toggleDrawer"
+        />
+        <q-route-tab
+          v-else
+          icon="login"
+          label="Anmeldung"
+          class="q-py-sm"
+          to="/login"
+        />
       </q-tabs>
       </q-footer>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from 'src/stores/authStore';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const leftDrawerOpen = ref(false);
+const drawerOpen = ref(false);
 
-const route = useRoute();
+const authStore = useAuthStore();
+const { loggedIn, user } = storeToRefs(authStore);
+const router = useRouter();
 
-function toggleLeftDrawer(): void {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
+function toggleDrawer(): void {
+  drawerOpen.value = !drawerOpen.value;
+}
+
+function logout() {
+  authStore.doLogout();
+  drawerOpen.value = false;
+  router.push('/login');
 }
 </script>
