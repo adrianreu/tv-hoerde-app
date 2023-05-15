@@ -50,14 +50,16 @@
     </q-drawer>
 
     <q-page-container>
-      <transition
-        enter-active-class="animated fadeIn"
-        leave-active-class="animated fadeOut"
-        appear
-        :duration="200"
-      >
-        <router-view />
-      </transition>
+      <router-view v-slot="{ Component }">
+        <transition
+          enter-active-class="animated fadeIn"
+          leave-active-class="animated fadeOut"
+          appear
+          :duration="200"
+        >
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </q-page-container>
 
     <q-footer>
@@ -87,14 +89,14 @@
           to="/login"
         />
       </q-tabs>
-      </q-footer>
+    </q-footer>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from 'src/stores/authStore';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const drawerOpen = ref(false);
@@ -112,4 +114,8 @@ function logout() {
   drawerOpen.value = false;
   router.push('/login');
 }
+
+onMounted(() => {
+  authStore.fetchUserInformation();
+});
 </script>

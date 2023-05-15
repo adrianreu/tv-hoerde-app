@@ -1,0 +1,17 @@
+{
+  "name": "tvh-app",
+  "version": "1.0.0",
+  "description": "The source code for the TV Hörde Club app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently --kill-others \"npm run dev:app\" \"npm run dev:strapi\"",
+    "dev:app": "cd tvh-frontend && npm run dev",
+    "dev:strapi": "cd tvh-backend && npm run dev"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}

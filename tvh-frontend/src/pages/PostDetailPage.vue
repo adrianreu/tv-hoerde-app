@@ -34,7 +34,7 @@
     <div class="text-grey text-caption q-mb-md">{{ post?.author }} - {{ formattedDate }}</div>
     <div v-html="cleanText" class="text-justify"></div>
     <bottom-action>
-      <q-btn flat class="full-width">
+      <q-btn flat class="full-width" :to="`/post-editor/${id}`">
         <q-icon name="edit" class="q-mr-sm"/>
         Bearbeiten
       </q-btn>

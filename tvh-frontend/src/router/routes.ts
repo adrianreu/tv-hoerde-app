@@ -54,6 +54,14 @@ const routes: RouteRecordRaw[] = [
         name: 'Termine',
       },
       {
+        path: 'post-editor/:id',
+        components: {
+          default: () => import('pages/PostEditorPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Beitrageditor',
+      },
+      {
         path: 'login',
         components: {
           default: () => import('pages/LoginPage.vue'),

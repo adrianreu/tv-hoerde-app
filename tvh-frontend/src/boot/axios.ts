@@ -1,5 +1,6 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import { useAuthStore } from 'src/stores/authStore';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -7,13 +8,20 @@ declare module '@vue/runtime-core' {
   }
 }
 
+const authStore = useAuthStore();
+
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
 // If any client changes this (global) instance, it might be a
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'http://127.0.0.1:9000' });
+const api = axios.create({
+  baseURL: 'http://127.0.0.1:9000',
+  headers: {
+    Authorization: authStore.loggedIn ? `Bearer ${authStore.jwt}` : undefined,
+  },
+});
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api

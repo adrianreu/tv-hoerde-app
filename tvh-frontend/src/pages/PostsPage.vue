@@ -34,7 +34,7 @@
       </div>
     </loading-wrapper>
     <bottom-action>
-      <q-btn flat class="full-width" icon="add">Neuer Beitrag</q-btn>
+      <q-btn flat class="full-width" icon="add" to="/post-editor/new">Neuer Beitrag</q-btn>
     </bottom-action>
   </q-page>
 </template>

@@ -7,6 +7,7 @@
           v-model="username"
           label="E-Mail Adresse"
           outlined
+          class="bg-white"
           @keypress.enter="login"
           ></q-input>
         </div>
@@ -16,6 +17,7 @@
             label="Passwort"
             @keypress.enter="login"
             type="password"
+            class="bg-white"
           ></q-input>
         </div>
         <div class="col-12">
