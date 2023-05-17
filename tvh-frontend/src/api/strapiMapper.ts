@@ -34,3 +34,17 @@ export function toStrapiPagination(
     'pagination[withCount]': withCount,
   };
 }
+
+export function mapStrapiRequestData(data: any): any {
+  if (!data) return undefined;
+  const cleanedData: any = { ...data, id: undefined };
+  Object.keys(data).forEach((key) => {
+    if (typeof data[key] === 'object') {
+      cleanedData[key] = data[key].id || -1;
+    }
+    if (Array.isArray(data[key])) {
+      cleanedData[key] = data[key].map((item: any) => item.id) || [];
+    }
+  });
+  return cleanedData;
+}

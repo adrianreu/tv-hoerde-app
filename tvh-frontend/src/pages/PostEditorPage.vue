@@ -16,7 +16,7 @@
       <div class="text-weight-bold q-mt-md">Bilder</div>
       <div>
         <q-file
-          v-model="post.images"
+          v-model="images"
           label="Dateien wählen (.jpg, .png)"
           outlined
           multiple
@@ -60,24 +60,34 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
-import { Post, getPost } from 'src/api/postApi';
+import { getPost, createPost, PostRequest } from 'src/api/postApi';
+import { useAuthStore } from 'src/stores/authStore';
+import { storeToRefs } from 'pinia';
+import { useQuasar } from 'quasar';
 
 const route = useRoute();
+const $q = useQuasar();
+
 const id = computed(() => route.params.id.toString());
 const isNew = computed(() => id.value === 'new');
-const post = ref<Post>({
+const post = ref<PostRequest>({
   text: '',
   title: '',
-  images: [],
-  id: 0,
-  createdAt: '',
-  publishedAt: '',
-  updatedAt: '',
 });
+
+const images = ref<File[]>([]);
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 async function loadPost() {
   try {
-    post.value = await getPost(id.value.toString());
+    const fullPost = await getPost(id.value.toString());
+    post.value = {
+      text: fullPost.text,
+      title: fullPost.title,
+    };
+    console.log(fullPost);
+    images.value = fullPost?.images?.map((image) => new File([], image.name)) || [];
   } catch (error) {
     // TODO error handling
     console.log(error);
@@ -85,12 +95,27 @@ async function loadPost() {
 }
 
 function cancelFile(index: number) {
-  post.value.images.splice(index, 1);
+  images.value.splice(index, 1);
 }
 
-function save() {
+async function save() {
   if (isNew.value) {
-    console.log('neuen beitrag angelegt');
+    const fullPost = await createPost({
+      ...post.value,
+      author: user.value?.id,
+    }, images.value);
+    post.value = {
+      text: fullPost.text,
+      title: fullPost.title,
+    };
+    $q.notify({
+      message: 'Beitrag erstellt',
+      icon: 'done',
+      color: 'white',
+      textColor: 'black',
+      iconColor: 'green',
+      classes: 'q-mb-xxl',
+    });
   } else {
     console.log('beitrag gespeichert');
   }

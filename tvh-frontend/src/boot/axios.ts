@@ -1,6 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from 'src/stores/authStore';
+import qs from 'qs';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -21,6 +22,9 @@ const api = axios.create({
   headers: {
     Authorization: authStore.loggedIn ? `Bearer ${authStore.jwt}` : undefined,
   },
+  paramsSerializer: (params) => qs.stringify(params, {
+    encodeValuesOnly: true, // prettify URL
+  }),
 });
 
 export default boot(({ app }) => {

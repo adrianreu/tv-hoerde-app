@@ -128,6 +128,7 @@ module.exports = configure((/* ctx */) => ({
     // Quasar plugins
     plugins: [
       'Loading',
+      'Notify',
     ],
   },
 

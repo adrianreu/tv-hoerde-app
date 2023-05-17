@@ -56,7 +56,3 @@ export interface StrapiImage {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export interface StrapiUser {
-  name: string;
-}

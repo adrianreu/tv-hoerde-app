@@ -68,13 +68,13 @@ async function importPosts() {
               title: post.title,
               text: post.text,
               createdAt: post.createdAt,
-              publishedAt: new Date(),
+              updatedAt: post.createdAt,
+              publishedAt: post.createdAt,
             },
           });
           const imageBlobs = [];
           for (let i = 0; i < post.images.length; i++) {
             const image = post.images[i];
-            console.log(image.name);
             const response = await axios.get(image.url, {
               responseType: 'arraybuffer'
             });

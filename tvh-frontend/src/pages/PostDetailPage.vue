@@ -34,6 +34,10 @@
     <div class="text-grey text-caption q-mb-md">{{ post?.author }} - {{ formattedDate }}</div>
     <div v-html="cleanText" class="text-justify"></div>
     <bottom-action>
+      <q-btn flat class="full-width bg-accent" @click="deletePost">
+        <q-icon name="delete" class="q-mr-sm"/>
+        Löschen
+      </q-btn>
       <q-btn flat class="full-width" :to="`/post-editor/${id}`">
         <q-icon name="edit" class="q-mr-sm"/>
         Bearbeiten
@@ -70,6 +74,10 @@ async function loadPost() {
     // TODO error handling
     console.log(error);
   }
+}
+
+async function deletePost() {
+  console.log('TODO: DELETE POST');
 }
 
 const formattedDate = computed(() => toGermanDate(post?.value?.createdAt || ''));

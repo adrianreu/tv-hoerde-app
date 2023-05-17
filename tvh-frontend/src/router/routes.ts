@@ -62,6 +62,14 @@ const routes: RouteRecordRaw[] = [
         name: 'Beitrageditor',
       },
       {
+        path: 'event-editor/:id',
+        components: {
+          default: () => import('pages/EventEditorPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Eventeditor',
+      },
+      {
         path: 'login',
         components: {
           default: () => import('pages/LoginPage.vue'),

@@ -26,7 +26,7 @@
       </template>
     </q-list>
     <bottom-action>
-      <q-btn flat class="full-width" icon="add">Neues Event</q-btn>
+      <q-btn flat class="full-width" icon="add" to="/event-editor/new">Neues Event</q-btn>
     </bottom-action>
   </q-page>
 </template>

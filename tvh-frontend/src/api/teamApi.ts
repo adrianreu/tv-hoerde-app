@@ -15,7 +15,9 @@ export interface Team extends StrapiGeneral {
 export async function getTeams(): Promise<Team[]> {
   const { data } = await api.get('/api/teams/', {
     params: {
-      'populate[teamImage]': '*',
+      populate: {
+        teamImage: '*',
+      },
     },
   });
 
@@ -25,9 +27,15 @@ export async function getTeams(): Promise<Team[]> {
 export async function getTeam(id: number | string): Promise<Team> {
   const { data } = await api.get(`/api/teams/${id}`, {
     params: {
-      'populate[teamImage]': '*',
-      'populate[trainingTimes][populate][0]': 'place',
-      'populate[teamMembers][populate][0]': 'image',
+      populate: {
+        teamImage: '*',
+        trainingTimes: {
+          populate: ['place'],
+        },
+        teamMembers: {
+          populate: ['image'],
+        },
+      },
     },
   });
 

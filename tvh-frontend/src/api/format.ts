@@ -18,3 +18,10 @@ export function toGermanDate(toFormat: string) {
     'DD.MM.YYYY',
   );
 }
+
+export function toGermanDateTime(toFormat: string) {
+  return date.formatDate(
+    extractISODate(toFormat),
+    'DD.MM.YYYY HH:mm',
+  );
+}
