@@ -32,10 +32,18 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'booking-plans',
         components: {
-          default: () => import('pages/BookingPlan.vue'),
+          default: () => import('pages/BookingPlansPage.vue'),
           toolbar: () => import('components/toolbars/MainToolbar.vue'),
         },
         name: 'Belegungsplan',
+      },
+      {
+        path: 'booking-plans/:id',
+        components: {
+          default: () => import('pages/BookingPlanDetailPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Feldbelegung',
       },
       {
         path: 'teams/:id',
