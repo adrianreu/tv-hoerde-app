@@ -34,7 +34,7 @@
     <div class="text-grey text-caption q-mb-md">{{ post?.author }} - {{ formattedDate }}</div>
     <div v-html="cleanText" class="text-justify"></div>
     <bottom-action>
-      <q-btn flat class="full-width bg-accent" @click="deletePost">
+      <q-btn flat class="full-width bg-accent" @click="deleteDetailPost">
         <q-icon name="delete" class="q-mr-sm"/>
         Löschen
       </q-btn>
@@ -47,14 +47,17 @@
 </template>
 
 <script setup lang="ts">
-import { getPost, Post } from 'src/api/postApi';
+import { getPost, Post, deletePost } from 'src/api/postApi';
 import { computed, onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import sanitizeHtml from 'sanitize-html';
 import { toGermanDate } from 'src/api/format';
 import BottomAction from 'src/components/BottomAction.vue';
+import { useQuasar } from 'quasar';
 
 const route = useRoute();
+const router = useRouter();
+const $q = useQuasar();
 const id = computed(() => route.params.id);
 const post = ref<Post>();
 const slide = ref();
@@ -76,8 +79,24 @@ async function loadPost() {
   }
 }
 
-async function deletePost() {
-  console.log('TODO: DELETE POST');
+async function deleteDetailPost() {
+  $q.dialog({
+    title: 'Bestätigen',
+    message: 'Möchtest Du den Beitrag wirklich löschen?',
+    cancel: 'Nein',
+    ok: 'Ja',
+    persistent: true,
+  })
+    .onOk(async () => {
+      // console.log('>>>> OK')
+      try {
+        await deletePost(id.value.toString());
+        router.push('/posts');
+      } catch (error) {
+        // TODO error handling
+        console.log(error);
+      }
+    });
 }
 
 const formattedDate = computed(() => toGermanDate(post?.value?.createdAt || ''));

@@ -7,10 +7,10 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: 'posts',
-        name: 'Beiträge',
+        name: 'News',
         components: {
           default: () => import('pages/PostsPage.vue'),
-          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+          toolbar: () => import('components/toolbars/MainToolbarWithSearch.vue'),
         },
       },
       {

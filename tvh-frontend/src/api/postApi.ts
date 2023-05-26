@@ -6,11 +6,13 @@ import {
 } from 'src/interfaces/StrapiInterfaces';
 import { mapStrapiData, mapStrapiRequestData, toStrapiPagination } from './strapiMapper';
 import { User } from './authApi';
+import { Team } from './teamApi';
 
 export interface Post extends StrapiGeneral {
   text: string;
   title: string;
   author?: User;
+  relatedTeam?: Team;
   images: StrapiImage[];
 }
 
@@ -18,6 +20,7 @@ export interface PostRequest {
   text: string;
   title: string;
   author?: number;
+  relatedTeam?: number;
 }
 
 interface PostsSearch {
@@ -25,7 +28,11 @@ interface PostsSearch {
   pagination: StrapiMetaPagination
 }
 
-export async function getPosts(page: number, pageSize: number): Promise<PostsSearch> {
+export async function getPosts(
+  page: number,
+  pageSize: number,
+  searchQuery?: string,
+): Promise<PostsSearch> {
   const { data } = await api.get('/api/posts/', {
     params: {
       pagination: {
@@ -34,6 +41,20 @@ export async function getPosts(page: number, pageSize: number): Promise<PostsSea
         withCount: true,
       },
       populate: '*',
+      filters: {
+        $or: [
+          {
+            title: {
+              $containsi: searchQuery,
+            },
+          },
+          {
+            text: {
+              $containsi: searchQuery,
+            },
+          },
+        ],
+      },
       sort: ['createdAt:desc'],
     },
   });
@@ -49,16 +70,24 @@ export async function getPosts(page: number, pageSize: number): Promise<PostsSea
 export async function getPost(id: number | string): Promise<Post> {
   const { data } = await api.get(`/api/posts/${id}`, {
     params: {
-      populate: '*',
+      populate: {
+        relatedTeam: '*',
+        author: '*',
+        images: '*',
+      },
     },
   });
 
   return mapStrapiData(data?.data);
 }
 
+export async function deletePost(id: number | string) {
+  await api.delete(`/api/posts/${id}`);
+}
+
 export async function createPost(post: PostRequest, images: File[]): Promise<Post> {
   const { data } = await api.post('/api/posts', {
-    data: post,
+    data: { ...post, createdBy: post.author },
   });
   const newPost = mapStrapiData(data.data);
   newPost.images = [];

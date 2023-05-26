@@ -1,6 +1,6 @@
-import { Notify, useQuasar } from 'quasar';
+import { useQuasar } from 'quasar';
 
-enum NotifyType {
+export enum NotifyType {
   Success = 1,
   Warning,
   Error,
@@ -41,7 +41,7 @@ export default function useNotify() {
   ];
 
   function show(text: string, type: NotifyType) {
-    const config = notifyConfigs.find(config => config.type === type);
+    const config = notifyConfigs.find((configuration) => configuration.type === type);
     $q.notify({
       message: text,
       color: 'white',
@@ -53,4 +53,4 @@ export default function useNotify() {
   return {
     show,
   };
-};
+}

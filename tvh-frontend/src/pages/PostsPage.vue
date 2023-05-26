@@ -1,6 +1,6 @@
 <template>
   <q-page padding>
-    <loading-wrapper :loading="loading && initialLoading">
+    <loading-wrapper :loading="loading || initialLoading">
       <div class="col q-col-gutter-md">
         <template
           v-for="post in posts"
@@ -9,7 +9,7 @@
           <article-preview
             :title="post.title"
             :image-url="post.images[0]?.formats?.small?.url || ''"
-            :author="post.author?.name || ''"
+            :author="post.author?.username || ''"
             :created-at="post.createdAt"
             @click="goToDetailPage(post)"
           />
@@ -27,7 +27,7 @@
               flat
               color="grey"
               active-color="primary"
-              @update:model-value="loadPage"
+              @update:model-value="loadPageAndScroll"
             />
           </div>
         </div>
@@ -48,51 +48,33 @@ import { Post, getPosts } from 'src/api/postApi';
 import { scroll } from 'quasar';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
 import BottomAction from 'src/components/BottomAction.vue';
+import { usePostSearchStore } from 'src/stores/postSearchStore';
+import { storeToRefs } from 'pinia';
 
 const { setVerticalScrollPosition } = scroll;
 
 const router = useRouter();
-const posts = ref<Post[]>([]);
-const loading = ref(false);
-const initialLoading = ref(true);
+const postSearchStore = usePostSearchStore();
 
 const {
+  loading,
   page,
-  pageSize,
+  posts,
   totalPages,
-  total,
-} = usePagination();
-
-pageSize.value = 10;
+} = storeToRefs(postSearchStore);
+const initialLoading = ref(true);
 
 function goToDetailPage(post: Post) {
   router.push({ path: `/posts/${post.id}`, query: { title: post.title } });
 }
 
-async function loadPage(nextPage?: number) {
-  if (nextPage) {
-    page.value = nextPage;
-  }
-  try {
-    loading.value = true;
-    const searchResponse = await getPosts(page.value, pageSize.value);
-    page.value = searchResponse.pagination.page;
-    pageSize.value = searchResponse.pagination.pageSize;
-    totalPages.value = searchResponse.pagination.pageCount;
-    total.value = searchResponse.pagination.total;
-    loading.value = false;
-    posts.value = searchResponse.posts;
-    initialLoading.value = false;
-
-    setVerticalScrollPosition(window, 0, 300);
-  } catch (error) {
-    console.log(error);
-    loading.value = false;
-    // TODO error handling
-  }
+async function loadPageAndScroll(nextPage?: number) {
+  await postSearchStore.loadPage(nextPage);
+  setVerticalScrollPosition(window, 0, 300);
+  initialLoading.value = false;
 }
 
 onMounted(() => {
-  loadPage(1);
+  loadPageAndScroll(1);
 });
 </script>
