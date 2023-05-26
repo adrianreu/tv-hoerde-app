@@ -31,7 +31,9 @@
       </q-carousel-slide>
     </q-carousel>
     <div class="text-h6 q-mb-sm">{{ cleanTitle }}</div>
-    <div class="text-grey text-caption q-mb-md">{{ post?.author }} - {{ formattedDate }}</div>
+    <div class="text-grey text-caption q-mb-md">
+      {{ formattedAuthor }} {{ formattedAuthor ? '-' : '' }} {{ formattedDate }}
+    </div>
     <div v-html="cleanText" class="text-justify"></div>
     <bottom-action>
       <q-btn flat class="full-width bg-accent" @click="deleteDetailPost">
@@ -68,6 +70,11 @@ const cleanTitle = computed(() => sanitizeHtml(post.value?.title || '', {
   allowedAttributes: {},
   allowedIframeHostnames: [],
 }));
+
+const formattedAuthor = computed(
+  () => (post.value?.author?.firstname && post.value?.author?.lastname
+    ? `${post.value?.author?.firstname} ${post.value?.author?.lastname}` : ''),
+);
 
 async function loadPost() {
   try {

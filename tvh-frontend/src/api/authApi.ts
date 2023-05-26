@@ -9,6 +9,8 @@ export interface User {
   blocked: boolean;
   createdAt: Date;
   updatedAt: Date;
+  firstname: string;
+  lastname: string;
 }
 
 export interface LoginResponse {

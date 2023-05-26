@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="q-gutter-sm">
-      <div class="text-weight-bold">Eventtitel</div>
+      <div class="text-weight-bold">Eventtitel<span class="text-red">*</span></div>
       <q-input
         v-model="event.name"
         placeholder="Titel"
@@ -10,7 +10,7 @@
         class="bg-white"
       ></q-input>
 
-      <div class="text-weight-bold">Eventtermin</div>
+      <div class="text-weight-bold">Eventtermin<span class="text-red">*</span></div>
       <q-input
         :model-value="formattedEventDate"
         placeholder="Titel"
@@ -45,12 +45,11 @@
             showTimeDialog = true;
           }"
         />
-        <q-card-actions>
+        <q-card-actions class="row justify-end">
           <q-btn
             flat
             label="Übernehmen"
             color="primary"
-            class="full-width"
             v-close-popup
             @click="showTimeDialog = true"
           />
@@ -62,12 +61,11 @@
       <q-card>
         <q-time v-model="event.date" mask="YYYY-MM-DDTHH:mm:ss.SSSZ" format24h />
 
-        <q-card-actions>
+        <q-card-actions class="row justify-end">
           <q-btn
             flat
             label="Übernehmen"
             color="primary"
-            class="full-width"
             v-close-popup
             @click="showTimeDialog = true"
           />

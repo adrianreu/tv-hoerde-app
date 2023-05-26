@@ -6,7 +6,7 @@
     <div class="column justify-between" style="min-height: 100%">
       <div class="col-12 text-weight-bold ellipsis-2-lines">{{ cleanTitle }}</div>
       <div class="col-12 text-grey text-caption">
-        {{ author }} {{ author ? '-' : '' }} {{ formattedDate }}
+        {{ formattedAuthor }} {{ formattedAuthor ? '-' : '' }} {{ formattedDate }}
       </div>
     </div>
     </div>
@@ -24,13 +24,16 @@ import { toGermanDate } from 'src/api/format';
 interface Props {
   title: string;
   imageUrl: string;
-  author: string;
+  author: {
+    firstname?: string;
+    lastname?: string;
+  };
   createdAt: string;
 }
 const props = withDefaults(defineProps<Props>(), {
   title: '',
   imageUrl: '',
-  author: '',
+  author: () => ({}),
   createdAt: '',
 });
 
@@ -41,4 +44,8 @@ const cleanTitle = computed(() => sanitizeHtml(props.title, {
 }));
 
 const formattedDate = computed(() => toGermanDate(props.createdAt));
+const formattedAuthor = computed(
+  () => (props.author.firstname && props.author.lastname
+    ? `${props.author.firstname} ${props.author.lastname}` : ''),
+);
 </script>

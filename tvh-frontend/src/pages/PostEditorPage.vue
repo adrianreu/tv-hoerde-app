@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="q-gutter-sm">
-      <div class="text-weight-bold">Titel</div>
+      <div class="text-weight-medium">Titel<span class="text-red">*</span></div>
       <q-input
         v-model="post.title"
         placeholder="Titel"
@@ -10,10 +10,17 @@
         class="bg-white"
       ></q-input>
 
-      <div class="text-weight-bold q-mt-md">Text</div>
-      <q-editor v-model="post.text" min-height="5rem" />
+      <div class="text-weight-medium q-mt-md">Text<span class="text-red">*</span></div>
+      <q-editor
+        v-model="post.text"
+        min-height="5rem"
+        :toolbar="[
+          ['bold', 'italic', 'strike', 'underline'],
+          []
+        ]"
+      />
 
-      <div class="text-weight-bold q-mt-md">Betroffene Mannschaft</div>
+      <div class="text-weight-medium q-mt-md">Betroffene Mannschaft</div>
       <q-select
         v-model="post.relatedTeam"
         dense
@@ -27,9 +34,10 @@
         map-options
       />
 
-      <div class="text-weight-bold q-mt-md">Bilder</div>
+      <div class="text-weight-medium q-mt-md" v-if="isNew">Bilder</div>
       <div>
         <q-file
+          v-if="isNew"
           v-model="images"
           label="Dateien wählen (.jpg, .png)"
           outlined
@@ -83,22 +91,23 @@ import { getPost, createPost, PostRequest } from 'src/api/postApi';
 import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
 import { useQuasar } from 'quasar';
-import { Team, getTeams } from 'src/api/teamApi';
+import { useTeamStore } from 'src/stores/teamStore';
 
 // composables
 const route = useRoute();
 const $q = useQuasar();
 const authStore = useAuthStore();
+const teamStore = useTeamStore();
 
 // refs
 const { user } = storeToRefs(authStore);
+const { teams } = storeToRefs(teamStore);
 const post = ref<PostRequest>({
   text: '',
   title: '',
   relatedTeam: undefined,
 });
 const images = ref<File[]>([]);
-const teams: Ref<Team[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
 // computed
@@ -107,6 +116,7 @@ const isNew = computed(() => id.value === 'new');
 
 // functions
 async function loadPost() {
+  loading.value = true;
   try {
     const fullPost = await getPost(id.value.toString());
     post.value = {
@@ -150,6 +160,8 @@ async function save() {
     } catch (error) {
       // TODO add error handling
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   } else {
     console.log('beitrag gespeichert');
@@ -157,8 +169,8 @@ async function save() {
 }
 
 // hooks
-onMounted(async () => {
-  teams.value = await getTeams();
+onMounted(() => {
+  teamStore.fetchTeams();
   if (!isNew.value) {
     loadPost();
   }

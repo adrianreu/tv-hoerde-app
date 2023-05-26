@@ -32,6 +32,7 @@ export async function getPosts(
   page: number,
   pageSize: number,
   searchQuery?: string,
+  teamFilter?: number,
 ): Promise<PostsSearch> {
   const { data } = await api.get('/api/posts/', {
     params: {
@@ -54,6 +55,11 @@ export async function getPosts(
             },
           },
         ],
+        relatedTeam: {
+          id: {
+            $eq: teamFilter,
+          },
+        },
       },
       sort: ['createdAt:desc'],
     },

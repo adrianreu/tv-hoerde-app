@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="relative full-height" style="min-height: 100%">
     <transition
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"

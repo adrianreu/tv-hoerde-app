@@ -1,7 +1,10 @@
 <template>
   <q-page padding>
     <loading-wrapper :loading="loading || initialLoading">
-      <div class="col q-col-gutter-md">
+      <div class="flex flex-center full-height q-mt-md" v-if="posts.length < 1">
+        Keine Beiträge gefunden.
+      </div>
+      <div class="col q-col-gutter-md" v-else>
         <template
           v-for="post in posts"
           :key="post.id"
@@ -9,7 +12,10 @@
           <article-preview
             :title="post.title"
             :image-url="post.images[0]?.formats?.small?.url || ''"
-            :author="post.author?.username || ''"
+            :author="{
+              firstname: post.author?.firstname,
+              lastname: post.author?.lastname,
+            }"
             :created-at="post.createdAt"
             @click="goToDetailPage(post)"
           />

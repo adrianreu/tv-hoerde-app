@@ -6,10 +6,15 @@ import { TrainingTime } from './trainingTimeApi';
 
 export interface Team extends StrapiGeneral {
   name: string;
-  league?: string;
+  league: string;
   teamImage?: StrapiImage;
   teamMembers?: TeamMember[];
   trainingTimes?: TrainingTime[];
+  recruitingText?: string;
+  recruitingTitle?: string;
+  recruitingButtonText?: string;
+  isRecruiting: boolean;
+  recruitingEmail?: string;
 }
 
 export async function getTeams(): Promise<Team[]> {
