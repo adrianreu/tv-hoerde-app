@@ -12,6 +12,13 @@ export interface Booking extends StrapiGeneral {
   bookedCourt: BookableCourt;
 }
 
+export interface BookingRequest {
+  bookedBy: number;
+  startTime: Date;
+  endTime: Date;
+  bookedCourt: number;
+}
+
 export async function getBookings(placeId?: number, forDate?: Date): Promise<Booking[]> {
   let dayStart;
   let dayEnd;
@@ -52,4 +59,15 @@ export async function getBookings(placeId?: number, forDate?: Date): Promise<Boo
   });
 
   return mapStrapiData(data?.data);
+}
+
+export async function createBooking(booking: BookingRequest): Promise<Booking> {
+  const { data } = await api.post('/api/bookings', {
+    data: booking,
+  }, {
+    params: {
+      populate: '*',
+    },
+  });
+  return mapStrapiData(data.data);
 }

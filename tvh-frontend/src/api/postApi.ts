@@ -93,7 +93,7 @@ export async function deletePost(id: number | string) {
 
 export async function createPost(post: PostRequest, images: File[]): Promise<Post> {
   const { data } = await api.post('/api/posts', {
-    data: { ...post, createdBy: post.author },
+    data: post,
   });
   const newPost = mapStrapiData(data.data);
   newPost.images = [];
@@ -111,4 +111,11 @@ export async function createPost(post: PostRequest, images: File[]): Promise<Pos
     newPost.images.push(uploadedImage);
   }));
   return newPost;
+}
+
+export async function updatePost(id: number | string, post: PostRequest): Promise<Post> {
+  const { data } = await api.put(`/api/posts/${id}`, {
+    data: post,
+  });
+  return mapStrapiData(data.data);
 }

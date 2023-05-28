@@ -87,15 +87,20 @@ import {
 } from 'vue';
 import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
-import { getPost, createPost, PostRequest } from 'src/api/postApi';
+import {
+  getPost,
+  createPost,
+  PostRequest,
+  updatePost,
+} from 'src/api/postApi';
 import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
-import { useQuasar } from 'quasar';
 import { useTeamStore } from 'src/stores/teamStore';
+import useNotify, { NotifyType } from 'src/hooks/useNotify';
 
 // composables
 const route = useRoute();
-const $q = useQuasar();
+const notify = useNotify();
 const authStore = useAuthStore();
 const teamStore = useTeamStore();
 
@@ -148,15 +153,9 @@ async function save() {
       post.value = {
         text: fullPost.text,
         title: fullPost.title,
+        relatedTeam: fullPost.relatedTeam?.id,
       };
-      $q.notify({
-        message: 'Beitrag erstellt',
-        icon: 'done',
-        color: 'white',
-        textColor: 'black',
-        iconColor: 'green',
-        classes: 'q-mb-xxl',
-      });
+      notify.show('Beitrag erstellt', NotifyType.Success);
     } catch (error) {
       // TODO add error handling
       console.log(error);
@@ -164,7 +163,21 @@ async function save() {
       loading.value = false;
     }
   } else {
-    console.log('beitrag gespeichert');
+    loading.value = true;
+    try {
+      const fullPost = await updatePost(id.value, post.value);
+      post.value = {
+        text: fullPost.text,
+        title: fullPost.title,
+        relatedTeam: fullPost.relatedTeam?.id,
+      };
+      notify.show('Beitrag aktualisiert', NotifyType.Success);
+    } catch (error) {
+      // TODO add error handling
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 }
 

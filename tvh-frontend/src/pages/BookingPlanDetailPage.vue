@@ -41,7 +41,7 @@
           <div class="column full-height items-center">
             <div class="col" v-for="slot in timeSlots" :key="slot.toString()">
               <div class="text-caption">
-                {{ slot.from }} - {{ slot.to }}
+                {{ slot.label }}
               </div>
             </div>
           </div>
@@ -57,6 +57,7 @@
                 <div
                   :class="slot.booking ? 'bg-red-5 text-white' : 'bg-grey-3'"
                   class="rounded-borders q-pa-xs"
+                  @click="openBookingDialog(court.id, slot)"
                 >
                   {{ slot.booking ? 'geblockt' : 'frei' }}
                 </div>
@@ -64,12 +65,97 @@
           </div>
         </div>
       </div>
+      <bottom-action>
+        <q-btn flat class="full-width" @click="$event => openBookingDialog()">
+          <q-icon name="book_online" class="q-mr-sm"/>
+          Buchung anlegen
+        </q-btn>
+      </bottom-action>
+      <q-dialog v-model="showBookingDialog">
+        <q-card class="full-width">
+          <q-card-section class="q-dialog__title">
+            Buchung anlegen
+          </q-card-section>
+          <q-card-section class="q-gutter-sm">
+            <div class="text-weight-medium">
+              Datum
+            </div>
+            <q-input
+              :model-value="formattedDate"
+              dense
+              outlined
+              class="bg-white"
+              clearable
+              disable
+            />
+            <div class="text-weight-medium">
+              Feld
+            </div>
+            <q-select
+              v-model="selectedCourt"
+              dense
+              outlined
+              :options="courts"
+              class="bg-white"
+              clearable
+              emit-value
+              map-options
+              option-label="name"
+              option-value="id"
+            />
+            <div class="text-weight-medium">
+              Startzeit<span class="text-red">*</span>
+            </div>
+            <q-select
+              v-model="selectedStartTime"
+              dense
+              outlined
+              :options="timeOptions"
+              class="bg-white"
+              clearable
+              emit-value
+              map-options
+            />
+            <div class="text-weight-medium">
+              Endzeit<span class="text-red">*</span>
+            </div>
+            <q-select
+              v-model="selectedEndTime"
+              dense
+              outlined
+              :options="timeOptions"
+              class="bg-white"
+              clearable
+              emit-value
+              map-options
+              :disable="selectedStartTime === null"
+            />
+            <div class="text-weight-medium q-mt-md">
+              Anzahl Personen<span class="text-red">*</span>
+            </div>
+            <q-input
+              v-model="amountPersons"
+              placeholder="Anzahl Personen"
+              type="number"
+              dense
+              outlined
+              class="bg-white"
+              :min="2"
+              :max="20"
+            ></q-input>
+          </q-card-section>
+          <q-card-actions class="row justify-end">
+            <q-btn color="primary" flat @click="resetForm">Abbrechen</q-btn>
+            <q-btn color="primary" flat @click="bookCourt">Buchen</q-btn>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </loading-wrapper>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { Booking, getBookings } from 'src/api/bookingApi';
+import { Booking, createBooking, getBookings } from 'src/api/bookingApi';
 import {
   ComputedRef,
   Ref, computed, onMounted, ref,
@@ -79,11 +165,15 @@ import LoadingWrapper from 'src/components/LoadingWrapper.vue';
 import { extractISODate, toGermanWeekdayDate } from 'src/api/format';
 import { date } from 'quasar';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
+import BottomAction from 'src/components/BottomAction.vue';
+import { useAuthStore } from 'src/stores/authStore';
+import { storeToRefs } from 'pinia';
 import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
 
 interface TimeSlot {
-  from: string;
-  to: string;
+  from: Date;
+  to: Date;
+  label: string;
   booking?: Booking;
 }
 
@@ -93,42 +183,103 @@ interface CourtWithSlots extends BookableCourt {
 
 const route = useRoute();
 const { show } = useNotify();
+const authStore = useAuthStore();
 
 const bookableTimeRange = [10, 22];
 
+// refs
+const { user } = storeToRefs(authStore);
 const courts: Ref<BookableCourt[]> = ref([]);
 const bookings: Ref<Booking[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const selectedDate: Ref<Date> = ref(new Date());
+const showBookingDialog: Ref<boolean> = ref(false);
+
+// form
+const selectedStartTime: Ref<Date | null> = ref(null);
+const selectedEndTime: Ref<Date | null> = ref(null);
+const selectedCourt: Ref<number | null> = ref(null);
+const amountPersons: Ref<number> = ref(2);
 
 const courtsAmounts: ComputedRef<number> = computed(() => courts.value.length || 0);
-const courtsWithSlots: ComputedRef<CourtWithSlots[]> = computed(() => courts.value.map((court) => {
+const timeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
+  const options = [];
+  for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
+    const dateTime = date.adjustDate(selectedDate.value, {
+      hours: i,
+      minutes: 0,
+      seconds: 0,
+      milliseconds: 0,
+    });
+    if (i < bookableTimeRange[1]) {
+      options.push({ label: `${i}:00`, value: dateTime });
+      const middleTime = date.addToDate(dateTime, {
+        minutes: 30,
+      });
+      options.push({ label: `${i}:30`, value: middleTime });
+    } else {
+      options.push({ label: `${i}:00`, value: dateTime });
+    }
+  }
+  return options;
+});
+const timeSlots: ComputedRef<TimeSlot[]> = computed(() => {
   const slots = [];
-  // const courtBookings = bookings.value.filter((booking) => booking.bookedCourt.id === court.id);
   for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
     if (i < bookableTimeRange[1]) {
-      // if (courtBookings.length > 0){
-
-      // }
-      // const firstTime = `${i}:00`;
-      // const middleTime = `${i}:30`;
-      // const lastTime = `${i + 1}:00`;
+      const firstTime = date.adjustDate(selectedDate.value, {
+        hours: i,
+        minutes: 0,
+        seconds: 0,
+        milliseconds: 0,
+      });
+      const middleTime = date.addToDate(firstTime, { minutes: 30 });
+      const lastTime = date.addToDate(middleTime, { minutes: 30 });
       slots.push({
-        from: `${i}:00`,
-        to: `${i}:30`,
-        booking: !!Math.round(Math.random()),
+        from: firstTime,
+        to: middleTime,
+        label: `${i}:00 - ${i}:30`,
+        booking: undefined,
       });
       slots.push({
-        from: `${i}:30`,
-        to: `${i + 1}:00`,
-        booking: !!Math.round(Math.random()),
+        from: middleTime,
+        to: lastTime,
+        label: `${i}:30 - ${i + 1}:00`,
+        booking: undefined,
       });
     }
   }
-  return {
+  return slots;
+});
+const courtsWithSlots: ComputedRef<CourtWithSlots[]> = computed(() => courts.value.map((court) => {
+  const slots: TimeSlot[] = structuredClone(timeSlots.value);
+  const courtBookings = bookings.value.filter((booking) => booking.bookedCourt.id === court.id);
+  courtBookings.forEach((booking) => {
+    const startTime = extractISODate(booking.startTime);
+    const endTime = extractISODate(booking.endTime);
+    let started = false;
+    for (let i = 0; i < slots.length; i += 1) {
+      const slot = slots[i];
+      if (
+        !started
+        && date.isBetweenDates(date.addToDate(startTime, { minute: 1 }), slot.from, slot.to)
+      ) {
+        started = true;
+      }
+      if (started) {
+        slot.booking = booking;
+      }
+      if (date.isBetweenDates(date.subtractFromDate(endTime, { minute: 1 }), slot.from, slot.to)) {
+        break;
+      }
+    }
+  });
+  const retörn = {
     ...court,
-    timeSlots: slots,
+    timeSlots: [...slots],
   };
+
+  return retörn;
 }));
 const colSize: ComputedRef<number> = computed(() => {
   switch (courtsAmounts.value) {
@@ -150,30 +301,62 @@ const formattedDate: ComputedRef<string> = computed(
   () => toGermanWeekdayDate(selectedDate.value.toISOString()),
 );
 
-const timeSlots: { from: string, to: string}[] = [];
-for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
-  if (i < bookableTimeRange[1]) {
-    timeSlots.push({
-      from: `${i}:00`,
-      to: `${i}:30`,
-    });
-    timeSlots.push({
-      from: `${i}:30`,
-      to: `${i + 1}:00`,
-    });
-  }
-}
-
-// function isBookingInTimeSlot(from: Date, to: Date, booking: Booking) {
-
-// }
-
 async function loadBookingsForDate() {
   try {
     bookings.value = await getBookings(id.value, selectedDate.value);
   } catch (error) {
     console.log(error);
     show('Fehler beim Laden der Buchungen.', NotifyType.Error);
+  }
+}
+
+function openBookingDialog(courtId?: number, timeSlot?: TimeSlot) {
+  if (courtId) {
+    selectedCourt.value = courtId;
+  }
+  if (timeSlot) {
+    selectedStartTime.value = timeSlot.from;
+    selectedEndTime.value = timeSlot.to;
+  }
+  showBookingDialog.value = true;
+}
+
+function resetForm() {
+  showBookingDialog.value = false;
+  selectedStartTime.value = null;
+  selectedCourt.value = null;
+  selectedEndTime.value = null;
+}
+
+async function bookCourt() {
+  if (
+    !user.value?.id || !selectedStartTime.value || !selectedEndTime.value || !selectedCourt.value
+  ) {
+    show(
+      'Es fehlen Informationen um eine Buchung durchzuführen.',
+      NotifyType.Error,
+    );
+    return;
+  }
+  try {
+    loading.value = true;
+    const booking = await createBooking({
+      bookedBy: user.value.id,
+      startTime: selectedStartTime.value,
+      endTime: selectedEndTime.value,
+      bookedCourt: selectedCourt.value,
+    });
+    bookings.value.push(booking);
+    show('Buchung erstellt.', NotifyType.Success);
+    showBookingDialog.value = false;
+  } catch (error) {
+    console.log(error);
+    show(
+      'Leider ist ein Fehler bei der Buchung aufgetreten. Bitte versuche es erneut.',
+      NotifyType.Error,
+    );
+  } finally {
+    loading.value = false;
   }
 }
 

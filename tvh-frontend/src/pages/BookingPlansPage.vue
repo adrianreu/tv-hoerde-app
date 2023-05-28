@@ -39,7 +39,7 @@ const bookablePlaces: Ref<Place[]> = ref([]);
 const loading = ref(false);
 
 function goToDetailPage(place: Place) {
-  router.push({ path: `/booking-plans/${place.id}` });
+  router.push({ path: `/booking-plans/${place.id}`, query: { title: place.name } });
 }
 
 onMounted(async () => {

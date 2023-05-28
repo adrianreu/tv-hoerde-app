@@ -5,48 +5,81 @@
     </q-header>
 
     <q-drawer
-      v-if="loggedIn"
       v-model="drawerOpen"
       show-if-above
       bordered
       side="right"
     >
-      <q-list separator>
-        <q-item>
-          <q-item-section avatar>
-            <q-avatar rounded color="accent" text-color="white">
-              {{ user?.username?.substring(0, 1) }}
-            </q-avatar>
-          </q-item-section>
-          <q-item-section>{{ user?.username }}</q-item-section>
-        </q-item>
-        <q-separator/>
-        <q-item
-          clickable
-          v-ripple
-          to="/booking-plans"
-        >
-          <q-item-section>
-            <q-item-label>Hallenbelegungsplan</q-item-label>
-          </q-item-section>
-          <q-item-section avatar>
-            <q-icon name="chevron_right" />
-          </q-item-section>
-        </q-item>
-        <q-item
-          clickable
-          v-ripple
-          @click="logout"
-        >
-          <q-item-section>
-            <q-item-label>Abmelden</q-item-label>
-          </q-item-section>
-          <q-item-section avatar>
-            <q-icon name="chevron_right" />
-          </q-item-section>
-        </q-item>
-        <q-separator/>
-      </q-list>
+      <div class="column full-height justify-between">
+        <div class="col">
+          <q-list separator>
+            <q-item v-if="loggedIn">
+              <q-item-section avatar>
+                <q-avatar rounded color="accent" text-color="white">
+                  {{ user?.username?.substring(0, 1) }}
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>{{ user?.username }}</q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+
+        <div class="col-shrink">
+          <q-list separator>
+            <q-separator/>
+            <q-item
+              clickable
+              v-ripple
+              to="/booking-plans"
+            >
+              <q-item-section>
+                <q-item-label>Hallenbelegungsplan</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-icon name="chevron_right" />
+              </q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-ripple
+              to="/feedback"
+            >
+              <q-item-section>
+                <q-item-label>Feedback geben</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-icon name="chevron_right" />
+              </q-item-section>
+            </q-item>
+            <q-item
+              v-if="!loggedIn"
+              clickable
+              v-ripple
+              to="/login"
+            >
+              <q-item-section>
+                <q-item-label>Anmelden</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-icon name="chevron_right" />
+              </q-item-section>
+            </q-item>
+            <q-item
+              v-else
+              clickable
+              v-ripple
+              @click="logout"
+            >
+              <q-item-section>
+                <q-item-label>Abmelden</q-item-label>
+              </q-item-section>
+              <q-item-section avatar>
+                <q-icon name="chevron_right" />
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -75,18 +108,10 @@
         <q-route-tab icon="group" label="Teams" class="q-py-sm" to="/teams" />
         <q-route-tab icon="event" label="Termine" class="q-py-sm" to="/events" />
         <q-tab
-          v-if="loggedIn"
           icon="menu"
           label="Menü"
           class="q-py-sm"
           @click="toggleDrawer"
-        />
-        <q-route-tab
-          v-else
-          icon="login"
-          label="Anmeldung"
-          class="q-py-sm"
-          to="/login"
         />
       </q-tabs>
     </q-footer>

@@ -27,7 +27,17 @@ const api = axios.create({
   }),
 });
 
-export default boot(({ app }) => {
+export default boot(({ app, router }) => {
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 403 || error.response?.status === 401) {
+        authStore.doLogout();
+        router.push('/login');
+      }
+      return Promise.reject(error);
+    },
+  );
   // for use inside Vue files (Options API) through this.$axios and this.$api
 
   app.config.globalProperties.$axios = axios;

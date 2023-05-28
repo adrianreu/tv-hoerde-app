@@ -86,6 +86,14 @@ const routes: RouteRecordRaw[] = [
         name: 'Anmeldung',
       },
       {
+        path: 'feedback',
+        components: {
+          default: () => import('pages/FeedbackPage.vue'),
+          toolbar: () => import('components/toolbars/MainToolbar.vue'),
+        },
+        name: 'Feedback',
+      },
+      {
         path: '',
         redirect: { path: '/posts' },
       },
