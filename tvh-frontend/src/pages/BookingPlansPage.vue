@@ -17,7 +17,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section avatar>
-            <q-icon name="chevron_right" />
+            <q-icon name="ph-caret-right" />
           </q-item-section>
         </q-item>
         <q-separator/>

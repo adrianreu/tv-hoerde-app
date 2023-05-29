@@ -40,7 +40,9 @@
       </div>
     </loading-wrapper>
     <bottom-action>
-      <q-btn flat class="full-width" icon="add" to="/post-editor/new">Neuer Beitrag</q-btn>
+      <q-btn flat class="full-width" to="/post-editor/new">
+        <q-icon name="ph-plus" class="q-mr-sm"></q-icon>Neuer Beitrag
+      </q-btn>
     </bottom-action>
   </q-page>
 </template>
@@ -48,7 +50,6 @@
 <script setup lang="ts">
 import ArticlePreview from 'src/components/ArticlePreview.vue';
 import { useRouter } from 'vue-router';
-import usePagination from 'src/hooks/usePagination';
 import { onMounted, ref } from 'vue';
 import { Post, getPosts } from 'src/api/postApi';
 import { scroll } from 'quasar';

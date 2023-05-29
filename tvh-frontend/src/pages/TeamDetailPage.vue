@@ -124,7 +124,7 @@
     </q-dialog>
     <bottom-action>
       <q-btn flat class="full-width">
-        <q-icon name="edit" class="q-mr-sm"/>
+        <q-icon name="ph-pencil-simple" class="q-mr-sm"/>
         Bearbeiten
       </q-btn>
     </bottom-action>

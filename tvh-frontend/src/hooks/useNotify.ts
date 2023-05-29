@@ -13,28 +13,28 @@ export default function useNotify() {
     {
       type: NotifyType.Success,
       config: {
-        icon: 'done',
+        icon: 'ph-check',
         iconColor: 'green',
       },
     },
     {
       type: NotifyType.Warning,
       config: {
-        icon: 'warning',
+        icon: 'ph-warning',
         iconColor: 'orange',
       },
     },
     {
       type: NotifyType.Error,
       config: {
-        icon: 'error',
+        icon: 'ph-warning-circle',
         iconColor: 'red',
       },
     },
     {
       type: NotifyType.Info,
       config: {
-        icon: 'error',
+        icon: 'ph-warning-circle',
         iconColor: 'blue',
       },
     },

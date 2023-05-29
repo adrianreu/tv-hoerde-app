@@ -12,7 +12,7 @@
       >
         <div class="column">
           <q-icon
-            name="sports_volleyball"
+            name="ph-volleyball"
             color="primary"
             size="xl"
             class="loading-animation"

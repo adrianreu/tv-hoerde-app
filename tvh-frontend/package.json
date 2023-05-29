@@ -12,6 +12,7 @@
     "build": "quasar build"
   },
   "dependencies": {
+    "@phosphor-icons/web": "^2.0.3",
     "@quasar/extras": "^1.0.0",
     "@vueuse/core": "^10.1.2",
     "axios": "^1.2.1",

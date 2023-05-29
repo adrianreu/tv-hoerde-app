@@ -75,7 +75,7 @@
 
     <bottom-action>
       <q-btn flat class="full-width" @click="save">
-        <q-icon name="save" class="q-mr-sm"/>
+        <q-icon name="ph-floppy-disk" class="q-mr-sm"/>
         {{ isNew ? 'Neu anlegen' : 'Speichern' }}
       </q-btn>
     </bottom-action>
@@ -86,14 +86,14 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
-import { useQuasar } from 'quasar';
 import { EventRequest, createEvent, getEvent } from 'src/api/eventApi';
 import { toGermanDateTime } from 'src/api/format';
 import { getPlaces } from 'src/api/placeApi';
 import { mapStrapiRequestData } from 'src/api/strapiMapper';
+import useNotify, { NotifyType } from 'src/hooks/useNotify';
 
 const route = useRoute();
-const $q = useQuasar();
+const { show } = useNotify();
 
 const event = ref<EventRequest>({
   date: new Date().toISOString(),
@@ -128,15 +128,9 @@ async function loadPlaceOptions() {
 
 async function save() {
   if (isNew.value) {
-    event.value = await createEvent(event.value);
-    $q.notify({
-      message: 'Event erstellt',
-      icon: 'done',
-      color: 'white',
-      textColor: 'black',
-      iconColor: 'green',
-      classes: 'q-mb-xxl',
-    });
+    const newEvent = await createEvent(event.value);
+    event.value = { ...newEvent, place: newEvent.place?.id };
+    show('Event erstellt', NotifyType.Success);
   } else {
     console.log('event gespeichert');
   }

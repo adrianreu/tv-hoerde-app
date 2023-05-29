@@ -16,7 +16,7 @@
 
           <q-item-section side>
             <q-btn
-              :icon="happening.isActive ? 'notifications_off' : 'notifications_active'"
+              :icon="happening.isActive ? 'ph-bell-slash' : 'ph-bell-ringing'"
               round
               flat
               @click="toggleActiveEvent(happening.id)"
@@ -26,7 +26,9 @@
       </template>
     </q-list>
     <bottom-action>
-      <q-btn flat class="full-width" icon="add" to="/event-editor/new">Neues Event</q-btn>
+      <q-btn flat class="full-width" to="/event-editor/new">
+        <q-icon name="ph-plus" class="q-mr-sm"></q-icon>Neues Event
+      </q-btn>
     </bottom-action>
   </q-page>
 </template>

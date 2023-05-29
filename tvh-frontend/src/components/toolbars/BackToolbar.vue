@@ -1,6 +1,6 @@
 <template>
   <q-toolbar>
-    <q-btn round flat icon="arrow_back" color="black" @click="router.go(-1)"></q-btn>
+    <q-btn round flat icon="ph-arrow-left" color="black" @click="router.go(-1)"></q-btn>
     <q-toolbar-title class="text-black">
       {{ title }}
     </q-toolbar-title>

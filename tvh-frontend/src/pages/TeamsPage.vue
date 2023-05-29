@@ -20,14 +20,16 @@
             <q-item-label>{{ team.name }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
-            <q-icon name="chevron_right" />
+            <q-icon name="ph-cart-right" />
           </q-item-section>
         </q-item>
         <q-separator/>
       </q-list>
     </loading-wrapper>
     <bottom-action>
-      <q-btn flat class="full-width" icon="add">Neues Team</q-btn>
+      <q-btn flat class="full-width">
+        <q-icon name="ph-plus" class="q-mr-sm"></q-icon>Neues Team
+      </q-btn>
     </bottom-action>
   </q-page>
 </template>

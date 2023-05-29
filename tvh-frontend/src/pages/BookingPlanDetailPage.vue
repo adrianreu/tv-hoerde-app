@@ -6,7 +6,7 @@
           <q-btn
             round
             flat
-            icon="chevron_left"
+            icon="ph-caret-left"
             :color="selectedDateIsToday ? 'grey-5' : 'black'"
             :disable="selectedDateIsToday"
             @click="addToDate(-1)"
@@ -24,7 +24,7 @@
           </div>
         </transition>
         <div class="col-shrink text-right">
-          <q-btn round flat icon="chevron_right" color="black" @click="addToDate(1)"></q-btn>
+          <q-btn round flat icon="ph-caret-right" color="black" @click="addToDate(1)"></q-btn>
         </div>
       </div>
       <div class="row q-col-gutter-xs">
@@ -67,7 +67,7 @@
       </div>
       <bottom-action>
         <q-btn flat class="full-width" @click="$event => openBookingDialog()">
-          <q-icon name="book_online" class="q-mr-sm"/>
+          <q-icon name="ph-volleyball" class="q-mr-sm"/>
           Buchung anlegen
         </q-btn>
       </bottom-action>

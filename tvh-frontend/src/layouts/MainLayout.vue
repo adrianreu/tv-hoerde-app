@@ -36,7 +36,7 @@
                 <q-item-label>Hallenbelegungsplan</q-item-label>
               </q-item-section>
               <q-item-section avatar>
-                <q-icon name="chevron_right" />
+                <q-icon name="ph-caret-right" />
               </q-item-section>
             </q-item>
             <q-item
@@ -48,7 +48,7 @@
                 <q-item-label>Feedback geben</q-item-label>
               </q-item-section>
               <q-item-section avatar>
-                <q-icon name="chevron_right" />
+                <q-icon name="ph-caret-right" />
               </q-item-section>
             </q-item>
             <q-item
@@ -61,7 +61,7 @@
                 <q-item-label>Anmelden</q-item-label>
               </q-item-section>
               <q-item-section avatar>
-                <q-icon name="chevron_right" />
+                <q-icon name="ph-caret-right" />
               </q-item-section>
             </q-item>
             <q-item
@@ -74,7 +74,7 @@
                 <q-item-label>Abmelden</q-item-label>
               </q-item-section>
               <q-item-section avatar>
-                <q-icon name="chevron_right" />
+                <q-icon name="ph-caret-right" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -104,11 +104,11 @@
         indicator-color="transparent"
         active-color="primary"
       >
-        <q-route-tab icon="newspaper" label="News" class="q-py-sm" to="/posts" />
-        <q-route-tab icon="group" label="Teams" class="q-py-sm" to="/teams" />
-        <q-route-tab icon="event" label="Termine" class="q-py-sm" to="/events" />
+        <q-route-tab icon="ph-newspaper" label="News" class="q-py-sm" to="/posts" />
+        <q-route-tab icon="ph-users-three" label="Teams" class="q-py-sm" to="/teams" />
+        <q-route-tab icon="ph-calendar" label="Termine" class="q-py-sm" to="/events" />
         <q-tab
-          icon="menu"
+          icon="ph-list"
           label="Menü"
           class="q-py-sm"
           @click="toggleDrawer"

@@ -26,17 +26,24 @@
         @blur="showSearch = false"
       >
         <template v-slot:append>
-          <q-icon name="search" @click="showSearch = false" />
+          <q-icon name="ph-magnifying-glass" @click="showSearch = false" />
         </template>
       </q-input>
       <div v-else class="row full-width items-center">
         <q-toolbar-title class="text-black" v-if="!showSearch">
           {{ route.name }}
         </q-toolbar-title>
-        <q-btn round color="accent" icon="search" flat @click="focusSearchInput" />
+        <q-btn round color="accent" icon="ph-magnifying-glass" flat @click="focusSearchInput" />
       </div>
     </Transition>
-    <q-btn round color="accent" icon="tune" flat class="q-ml-sm" @click="showFilterDialog = true" />
+    <q-btn
+      round
+      color="accent"
+      icon="ph-funnel"
+      flat
+      class="q-ml-sm"
+      @click="showFilterDialog = true"
+    />
     <q-dialog v-model="showFilterDialog">
       <q-card class="full-width">
         <q-card-section class="q-dialog__title">

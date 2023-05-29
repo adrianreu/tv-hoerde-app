@@ -54,7 +54,7 @@
               @remove="cancelFile(index)"
             >
               <q-avatar>
-                <q-icon name="photo" />
+                <q-icon name="ph-images" />
               </q-avatar>
 
               <div class="ellipsis relative-position">
@@ -71,7 +71,7 @@
     </div>
     <bottom-action>
       <q-btn flat class="full-width" @click="save" :loading="loading" :disable="loading">
-        <q-icon name="save" class="q-mr-sm"/>
+        <q-icon name="ph-floppy-disk" class="q-mr-sm"/>
         {{ isNew ? 'Neu anlegen' : 'Speichern' }}
       </q-btn>
     </bottom-action>
