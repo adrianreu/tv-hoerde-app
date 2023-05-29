@@ -110,7 +110,7 @@
               v-model="selectedStartTime"
               dense
               outlined
-              :options="timeOptions"
+              :options="startTimeOptions"
               class="bg-white"
               clearable
               emit-value
@@ -123,7 +123,7 @@
               v-model="selectedEndTime"
               dense
               outlined
-              :options="timeOptions"
+              :options="endTimeOptions"
               class="bg-white"
               clearable
               emit-value
@@ -202,27 +202,6 @@ const selectedCourt: Ref<number | null> = ref(null);
 const amountPersons: Ref<number> = ref(2);
 
 const courtsAmounts: ComputedRef<number> = computed(() => courts.value.length || 0);
-const timeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
-  const options = [];
-  for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
-    const dateTime = date.adjustDate(selectedDate.value, {
-      hours: i,
-      minutes: 0,
-      seconds: 0,
-      milliseconds: 0,
-    });
-    if (i < bookableTimeRange[1]) {
-      options.push({ label: `${i}:00`, value: dateTime });
-      const middleTime = date.addToDate(dateTime, {
-        minutes: 30,
-      });
-      options.push({ label: `${i}:30`, value: middleTime });
-    } else {
-      options.push({ label: `${i}:00`, value: dateTime });
-    }
-  }
-  return options;
-});
 const timeSlots: ComputedRef<TimeSlot[]> = computed(() => {
   const slots = [];
   for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
@@ -274,13 +253,44 @@ const courtsWithSlots: ComputedRef<CourtWithSlots[]> = computed(() => courts.val
       }
     }
   });
-  const retörn = {
+  return {
     ...court,
     timeSlots: [...slots],
   };
-
-  return retörn;
 }));
+const startTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
+  const options: { label: string, value: Date }[] = [];
+  const courtWithSlots = courtsWithSlots.value.find((court) => court.id === selectedCourt.value);
+  const filteredSlots = courtWithSlots?.timeSlots.filter((slot) => !slot.booking)
+    || timeSlots.value;
+  filteredSlots.forEach((slot, index) => {
+    options.push({ label: date.formatDate(slot.from, 'HH:mm'), value: slot.from });
+    if (index === filteredSlots.length - 1) {
+      options.push({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to });
+    }
+  });
+  return options;
+});
+
+const endTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
+  if (selectedEndTime.value === null) return startTimeOptions.value;
+  const options: { label: string, value: Date }[] = [];
+  const courtWithSlots = courtsWithSlots.value.find((court) => court.id === selectedCourt.value);
+  const filteredSlots = courtWithSlots?.timeSlots || timeSlots.value;
+
+  for (let i = 0; i < filteredSlots.length; i += 1) {
+    const slot = filteredSlots[i];
+    const dateDifference = date.getDateDiff(slot.from, selectedStartTime.value || '', 'minutes');
+    if (dateDifference > 0) {
+      options.push({ label: date.formatDate(slot.from, 'HH:mm'), value: slot.from });
+      if (slot.booking) {
+        break;
+      }
+    }
+  }
+  return options;
+});
+
 const colSize: ComputedRef<number> = computed(() => {
   switch (courtsAmounts.value) {
     case 3:
@@ -311,6 +321,9 @@ async function loadBookingsForDate() {
 }
 
 function openBookingDialog(courtId?: number, timeSlot?: TimeSlot) {
+  if (timeSlot?.booking) {
+    return;
+  }
   if (courtId) {
     selectedCourt.value = courtId;
   }
@@ -368,6 +381,7 @@ function addToDate(sign: number) {
 onMounted(async () => {
   loading.value = true;
   courts.value = await getBookableCourts(id.value);
+  selectedCourt.value = courts.value[0].id;
   await loadBookingsForDate();
   loading.value = false;
 });
