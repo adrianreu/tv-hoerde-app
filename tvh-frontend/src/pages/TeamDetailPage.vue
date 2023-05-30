@@ -123,7 +123,7 @@
       </q-card>
     </q-dialog>
     <bottom-action>
-      <q-btn flat class="full-width">
+      <q-btn flat class="full-width" :to="'/team-editor/' + id">
         <q-icon name="ph-pencil-simple" class="q-mr-sm"/>
         Bearbeiten
       </q-btn>

@@ -10,7 +10,7 @@
         class="bg-white"
       ></q-input>
 
-      <div class="text-weight-bold">Eventtermin<span class="text-red">*</span></div>
+      <div class="text-weight-bold q-mt-md">Eventtermin<span class="text-red">*</span></div>
       <q-input
         :model-value="formattedEventDate"
         placeholder="Titel"
@@ -20,7 +20,7 @@
         @click="showDateDialog = true"
       />
 
-      <div class="text-weight-bold">Eventort</div>
+      <div class="text-weight-bold q-mt-md">Eventort</div>
       <q-select
         v-model="event.place"
         placeholder="Ort"

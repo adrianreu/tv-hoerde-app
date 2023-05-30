@@ -54,6 +54,14 @@ const routes: RouteRecordRaw[] = [
         name: 'Mannschaft',
       },
       {
+        path: 'team-editor/:id',
+        components: {
+          default: () => import('pages/TeamEditorPage.vue'),
+          toolbar: () => import('components/toolbars/BackToolbar.vue'),
+        },
+        name: 'Mannschaftseditor',
+      },
+      {
         path: 'events',
         components: {
           default: () => import('pages/EventsPage.vue'),
