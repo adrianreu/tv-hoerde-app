@@ -88,12 +88,13 @@ import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
 import { EventRequest, createEvent, getEvent } from 'src/api/eventApi';
 import { toGermanDateTime } from 'src/api/format';
-import { getPlaces } from 'src/api/placeApi';
 import { mapStrapiRequestData } from 'src/api/strapiMapper';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
+import usePlaceApi from 'src/hooks/usePlaceApi';
 
 const route = useRoute();
 const { show } = useNotify();
+const { loadPlaceOptions, loadingPlaces, placeOptions } = usePlaceApi();
 
 const event = ref<EventRequest>({
   date: new Date().toISOString(),
@@ -101,12 +102,10 @@ const event = ref<EventRequest>({
 });
 const showDateDialog = ref(false);
 const showTimeDialog = ref(false);
-const placeOptions = ref<{ label: string, value: number }[]>();
 
 const id = computed(() => route.params.id.toString());
 const isNew = computed(() => id.value === 'new');
 const formattedEventDate = computed(() => toGermanDateTime(event.value.date));
-const loadingPlaces = ref(false);
 // const authStore = useAuthStore();
 // const { user } = storeToRefs(authStore);
 
@@ -117,13 +116,6 @@ async function loadEvent() {
     // TODO error handling
     console.log(error);
   }
-}
-
-async function loadPlaceOptions() {
-  loadingPlaces.value = true;
-  const places = await getPlaces();
-  placeOptions.value = places.map((place) => ({ label: place.name, value: place.id }));
-  loadingPlaces.value = false;
 }
 
 async function save() {

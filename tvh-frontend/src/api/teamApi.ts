@@ -17,6 +17,19 @@ export interface Team extends StrapiGeneral {
   recruitingEmail?: string;
 }
 
+export interface TeamRequest {
+  name: string;
+  league: string;
+  teamImage?: StrapiImage;
+  teamMembers?: TeamMember[];
+  trainingTimes?: TrainingTime[];
+  recruitingText?: string;
+  recruitingTitle?: string;
+  recruitingButtonText?: string;
+  isRecruiting: boolean;
+  recruitingEmail?: string;
+}
+
 export async function getTeams(): Promise<Team[]> {
   const { data } = await api.get('/api/teams/', {
     params: {
@@ -41,6 +54,19 @@ export async function getTeam(id: number | string): Promise<Team> {
           populate: ['image'],
         },
       },
+    },
+  });
+
+  return mapStrapiData(data?.data);
+}
+
+export async function updateTeam(id: number | string, team: TeamRequest): Promise<Team> {
+  const { data } = await api.put(`/api/teams/${id}`, {
+    data: {
+      ...team,
+      teamMembers: undefined,
+      trainingTimes: undefined,
+      teamImage: undefined,
     },
   });
 

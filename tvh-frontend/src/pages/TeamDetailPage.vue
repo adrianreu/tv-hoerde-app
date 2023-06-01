@@ -5,10 +5,11 @@
         :src="team?.teamImage?.url"
         :ratio="16/9"
         fit="cover"
+        class="q-mb-md"
       ></q-img>
       <q-card
         v-if="team?.isRecruiting"
-        class="q-mt-lg red-shadow relative"
+        class="q-mt-lg q-mb-md red-shadow relative"
         style="overflow: hidden;"
       >
         <q-card-section style="z-index: 1">
@@ -38,9 +39,11 @@
         animated
         control-color="white"
         color="accent"
-        :navigation="teamMembers?.length > 1"
         arrows
-        class="bg-accent text-white shadow-1 rounded-borders q-mb-md"
+        height="340px"
+        next-icon="ph-caret-right"
+        prev-icon="ph-caret-left"
+        class="bg-white rounded-borders q-mb-md"
       >
         <q-carousel-slide
           v-for="member in teamMembers"
@@ -48,16 +51,30 @@
           :name="member.id"
           class="q-pa-none"
         >
-          <div>
-            {{ member.firstname }}
-            {{ member.lastname }}
+          <div class="row">
+            <div class="col-12 full-height">
+              <div class="full-height">
+                <q-img
+                :src="member.image.url"
+                fit="cover"
+                :ratio="16/10"
+                ></q-img>
+              </div>
+            </div>
+            <div class="col-12 text-body1 text-weight-bold text-black text-center q-py-sm q-px-md">
+              {{ member.firstname }}
+              {{ member.lastname }}
+            </div>
+            <div class="col-12 text-body2 q-px-md">
+              Position: {{ positionValueToLabel(member.position) }}
+            </div>
+            <div v-if="member.height" class="col-12 text-body2 q-px-md">
+              Größe: {{ member.height }}cm
+            </div>
+            <div class="col-12 text-body2 q-px-md">
+              Geburtsdatum: {{ member.birthDate }}
+            </div>
           </div>
-          <q-img
-            :src="member.image.url"
-            fit="contain"
-            :ratio="4/3"
-            class="col-12 full-height"
-          ></q-img>
         </q-carousel-slide>
       </q-carousel>
       <div class="text-h6 q-mt-lg q-mb-sm">Trainingszeiten</div>
@@ -111,7 +128,7 @@
             v-model="contactFormular.position"
             dense
             outlined
-            :options="positionOptions"
+            :options="positionOptionsOnlyLabels"
             class="bg-white"
             clearable
           />
@@ -140,13 +157,16 @@ import { useTeamStore } from 'src/stores/teamStore';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
+import useVolleyballPositions from 'src/hooks/useVolleyballPositions';
+import { date } from 'quasar';
 
 const route = useRoute();
 const teamStore = useTeamStore();
+const { positionOptionsOnlyLabels, positionValueToLabel } = useVolleyballPositions();
 
 const dayMap = ['', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
-const slide = ref();
+const slide = ref(1);
 const showContactDialog = ref(false);
 const contactFormular = ref({
   firstname: '',
@@ -154,15 +174,6 @@ const contactFormular = ref({
   age: null,
   position: null,
 });
-const positionOptions = [
-  'Diagonal',
-  'Außenangreifer',
-  'Zuspieler',
-  'Mittelblocker',
-  'Libero',
-  'Trainer',
-  'Co-Trainer',
-];
 
 const id = computed(() => Number.parseInt(route.params.id.toString(), 10));
 const team = computed<Team | null>(() => teamStore.getTeam(id.value));
@@ -176,7 +187,10 @@ const mailPreset = computed<string>(() => {
   mailLink += `%0D%0A%0D%0A${contactFormular.value.firstname} ${contactFormular.value.lastname}`;
   return mailLink;
 });
-const teamMembers = computed<TeamMember[]>(() => team.value?.teamMembers || []);
+const teamMembers = computed<TeamMember[]>(() => team.value?.teamMembers?.map((member) => ({
+  ...member,
+  birthDate: date.formatDate(date.extractDate(member.birthDate, 'YYYY-MM-DD'), 'DD.MM.YYYY'),
+})) || []);
 const trainingTimes = computed(() => team.value?.trainingTimes?.map((training) => ({
   ...training,
   from: timeToHourMinute(training.from),

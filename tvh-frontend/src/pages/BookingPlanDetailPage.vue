@@ -169,6 +169,7 @@ import BottomAction from 'src/components/BottomAction.vue';
 import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
 import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
+import useLog from 'src/hooks/useLog';
 
 interface TimeSlot {
   from: Date;
@@ -183,6 +184,7 @@ interface CourtWithSlots extends BookableCourt {
 
 const route = useRoute();
 const { show } = useNotify();
+const { log } = useLog();
 const authStore = useAuthStore();
 
 const bookableTimeRange = [10, 22];
@@ -315,7 +317,7 @@ async function loadBookingsForDate() {
   try {
     bookings.value = await getBookings(id.value, selectedDate.value);
   } catch (error) {
-    console.log(error);
+    log('loadBookingsForDate()', error);
     show('Fehler beim Laden der Buchungen.', NotifyType.Error);
   }
 }
@@ -363,7 +365,7 @@ async function bookCourt() {
     show('Buchung erstellt.', NotifyType.Success);
     showBookingDialog.value = false;
   } catch (error) {
-    console.log(error);
+    log('bookCourt()', error);
     show(
       'Leider ist ein Fehler bei der Buchung aufgetreten. Bitte versuche es erneut.',
       NotifyType.Error,

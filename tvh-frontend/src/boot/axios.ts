@@ -31,7 +31,7 @@ export default boot(({ app, router }) => {
   api.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (error.response?.status === 403 || error.response?.status === 401) {
+      if (error.response?.status === 401) {
         authStore.doLogout();
         router.push('/login');
       }
