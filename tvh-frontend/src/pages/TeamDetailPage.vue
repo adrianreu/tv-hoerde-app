@@ -103,6 +103,7 @@
             outlined
             class="bg-white"
             clearable
+            clear-icon="ph-x-circle"
           />
           <div class="text-weight-medium">Nachname<span class="text-red">*</span></div>
           <q-input
@@ -111,6 +112,7 @@
             outlined
             class="bg-white"
             clearable
+            clear-icon="ph-x-circle"
           />
           <div class="text-weight-medium">Alter<span class="text-red">*</span></div>
           <q-input
@@ -119,6 +121,7 @@
             outlined
             class="bg-white"
             clearable
+            clear-icon="ph-x-circle"
             type="number"
             min="12"
             max="99"
@@ -131,6 +134,8 @@
             :options="positionOptionsOnlyLabels"
             class="bg-white"
             clearable
+            clear-icon="ph-x-circle"
+            dropdown-icon="ph-caret-down"
           />
         </q-card-section>
         <q-card-actions class="row justify-end">

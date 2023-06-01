@@ -32,6 +32,7 @@
         :options="placeOptions"
         emit-value
         map-options
+        dropdown-icon="ph-caret-down"
       />
     </div>
 

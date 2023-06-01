@@ -86,6 +86,7 @@
               outlined
               class="bg-white"
               clearable
+              clear-icon="ph-x-circle"
               disable
             />
             <div class="text-weight-medium">
@@ -98,10 +99,12 @@
               :options="courts"
               class="bg-white"
               clearable
+              clear-icon="ph-x-circle"
               emit-value
               map-options
               option-label="name"
               option-value="id"
+              dropdown-icon="ph-caret-down"
             />
             <div class="text-weight-medium">
               Startzeit<span class="text-red">*</span>
@@ -113,7 +116,9 @@
               :options="startTimeOptions"
               class="bg-white"
               clearable
+              clear-icon="ph-x-circle"
               emit-value
+              dropdown-icon="ph-caret-down"
               map-options
             />
             <div class="text-weight-medium">
@@ -126,6 +131,8 @@
               :options="endTimeOptions"
               class="bg-white"
               clearable
+              clear-icon="ph-x-circle"
+              dropdown-icon="ph-caret-down"
               emit-value
               map-options
               :disable="selectedStartTime === null"
@@ -168,8 +175,8 @@ import useNotify, { NotifyType } from 'src/hooks/useNotify';
 import BottomAction from 'src/components/BottomAction.vue';
 import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
-import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
 import useLog from 'src/hooks/useLog';
+import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
 
 interface TimeSlot {
   from: Date;

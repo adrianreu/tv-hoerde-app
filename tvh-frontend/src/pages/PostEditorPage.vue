@@ -14,9 +14,13 @@
       <q-editor
         v-model="post.text"
         min-height="5rem"
+        :definitions="{
+          bold: { icon: 'ph-text-b', },
+          italic: { icon: 'ph-text-italic', },
+          underline: { icon: 'ph-text-underline', },
+        }"
         :toolbar="[
-          ['bold', 'italic', 'strike', 'underline'],
-          []
+          ['bold', 'italic', 'underline'],
         ]"
       />
 
@@ -28,9 +32,11 @@
         :options="teams"
         class="bg-white"
         clearable
+        clear-icon="ph-x-circle"
         option-value="id"
         option-label="name"
         emit-value
+        dropdown-icon="ph-caret-down"
         map-options
       />
 

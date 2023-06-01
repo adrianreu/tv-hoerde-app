@@ -48,6 +48,20 @@ export async function createTeamMember(teamMember: TeamMemberRequest): Promise<T
   return newTeamMember;
 }
 
+export async function updateTeamMember(
+  id: string | number,
+  teamMember: TeamMemberRequest,
+): Promise<TeamMember> {
+  const { data } = await api.put(`/api/team-members/${id}`, {
+    data: {
+      ...teamMember,
+      image: undefined,
+      id: undefined,
+    },
+  });
+  return mapStrapiData(data.data);
+}
+
 export async function deleteTeamMember(id: string | number) {
   return api.delete(`/api/team-members/${id}`);
 }

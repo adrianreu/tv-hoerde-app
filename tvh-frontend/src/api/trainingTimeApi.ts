@@ -30,6 +30,19 @@ export async function createTrainingTime(trainingTime: TrainingTimeRequest): Pro
   return mapStrapiData(data.data);
 }
 
+export async function updateTrainingTime(
+  id: string | number,
+  trainingTime: TrainingTimeRequest,
+): Promise<TrainingTime> {
+  const { data } = await api.put(`/api/training-times/${id}`, {
+    data: {
+      ...trainingTime,
+      id: undefined,
+    },
+  });
+  return mapStrapiData(data.data);
+}
+
 export async function deleteTrainingTime(id: string | number) {
   return api.delete(`${baseUrl}/${id}`);
 }

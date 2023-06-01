@@ -25,7 +25,7 @@
       </q-item-section>
       <q-item-section class="col-4" avatar>
         <div class="row">
-          <q-btn round flat icon="ph-pencil" dense></q-btn>
+          <q-btn round flat icon="ph-pencil" dense @click="editMember(member)"></q-btn>
           <q-btn round flat icon="ph-trash" dense @click="deleteMember(member.id)"></q-btn>
         </div>
       </q-item-section>
@@ -86,7 +86,6 @@
           class="bg-white"
           clearable
           clear-icon="ph-x-circle"
-          hide-dropdown-icon="ph-caret-up"
           dropdown-icon="ph-caret-down"
           map-options
           emit-value
@@ -99,6 +98,7 @@
           accept=".jpg, .png, .jpeg, image/*"
           dense
           class="bg-white"
+          :disable="editingId > 0"
           clear-icon="ph-x-circle"
         >
           <template v-slot:file="{ file }">
@@ -149,8 +149,8 @@
       </q-card-section>
       <q-card-actions class="row justify-end">
         <q-btn color="primary" flat @click="showNewTeamMemberDialog = false">Abbrechen</q-btn>
-        <q-btn color="primary" @click="addTeamMember" unelevated :loading="loading">
-          Spieler hinzufügen
+        <q-btn color="primary" @click="saveTeamMember" unelevated :loading="loading">
+          {{ editingId > 0 ? 'Spieler speichern' : 'Spieler hinzufügen' }}
         </q-btn>
       </q-card-actions>
     </q-card>
@@ -164,14 +164,24 @@ import {
 import { useRoute } from 'vue-router';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
 import {
-  TeamMember, TeamMemberRequest, createTeamMember, deleteTeamMember,
+  TeamMember, TeamMemberRequest, createTeamMember, deleteTeamMember, updateTeamMember,
 } from 'src/api/teamMemberApi';
 import useVolleyballPositions from 'src/hooks/useVolleyballPositions';
 import { useQuasar } from 'quasar';
+import useLog from 'src/hooks/useLog';
 
 interface Props {
   modelValue: TeamMember[];
 }
+
+const defaultTeamMember = {
+  firstname: '',
+  lastname: '',
+  birthDate: '',
+  position: '',
+  height: 170,
+  shirtNumber: 1,
+};
 
 const emits = defineEmits(['update:modelValue']);
 const props = defineProps<Props>();
@@ -180,38 +190,64 @@ const route = useRoute();
 const $q = useQuasar();
 const { show } = useNotify();
 const { positionOptions, positionValueToLabel } = useVolleyballPositions();
+const { log } = useLog();
 
-const newTeamMember: Ref<TeamMemberRequest> = ref({
-  firstname: '',
-  lastname: '',
-  birthDate: '',
-  position: '',
-  height: 0,
-  shirtNumber: 0,
-});
+const newTeamMember: Ref<TeamMemberRequest> = ref(defaultTeamMember);
 const showNewTeamMemberDialog = ref(false);
+const editingId = ref(-1);
 const loading = ref(false);
 
 const id = computed(() => parseInt(route.params.id.toString(), 10));
 
-async function addTeamMember() {
-  try {
-    loading.value = true;
-    const fullTeamMember = await createTeamMember({
-      ...newTeamMember.value,
-      teams: [id.value],
-    });
-    emits('update:modelValue', [
-      ...props.modelValue,
-      fullTeamMember,
-    ]);
-    show('Spieler hinzugefügt', NotifyType.Success);
-    showNewTeamMemberDialog.value = false;
-  } catch (error) {
-    console.log(error);
-    show('Spieler konnte nicht hinzugefügt werden. Bitte versuche es erneut.', NotifyType.Error);
-  } finally {
-    loading.value = false;
+function resetTeamMember() {
+  showNewTeamMemberDialog.value = false;
+  editingId.value = -1;
+  newTeamMember.value = defaultTeamMember;
+}
+
+async function saveTeamMember() {
+  if (editingId.value > 0) {
+    try {
+      loading.value = true;
+      const fullTeamMember = await updateTeamMember(editingId.value, {
+        ...newTeamMember.value,
+        teams: [id.value],
+      });
+
+      emits('update:modelValue', [
+        ...props.modelValue.filter((member) => member.id !== editingId.value),
+        {
+          ...props.modelValue.find((member) => member.id === editingId.value),
+          ...fullTeamMember,
+        },
+      ]);
+      show('Spieler gespeichert', NotifyType.Success);
+      resetTeamMember();
+    } catch (error) {
+      log('TeamMemberApi', error);
+      show('Spieler konnte nicht gespeichert werden. Bitte versuche es erneut.', NotifyType.Error);
+    } finally {
+      loading.value = false;
+    }
+  } else {
+    try {
+      loading.value = true;
+      const fullTeamMember = await createTeamMember({
+        ...newTeamMember.value,
+        teams: [id.value],
+      });
+      emits('update:modelValue', [
+        ...props.modelValue,
+        fullTeamMember,
+      ]);
+      show('Spieler hinzugefügt', NotifyType.Success);
+      resetTeamMember();
+    } catch (error) {
+      log('TeamMemberApi', error);
+      show('Spieler konnte nicht hinzugefügt werden. Bitte versuche es erneut.', NotifyType.Error);
+    } finally {
+      loading.value = false;
+    }
   }
 }
 
@@ -231,11 +267,17 @@ async function deleteMember(memberId: number) {
         ]);
         show('Spieler gelöscht', NotifyType.Success);
       } catch (error) {
-        console.log(error);
+        log('TeamMemberApi', error);
         show('Spieler konnte nicht gelöscht werden. Bitte versuche es erneut.', NotifyType.Error);
       } finally {
         loading.value = false;
       }
     });
+}
+
+function editMember(member: TeamMember) {
+  editingId.value = member.id;
+  newTeamMember.value = { ...member, image: undefined };
+  showNewTeamMemberDialog.value = true;
 }
 </script>

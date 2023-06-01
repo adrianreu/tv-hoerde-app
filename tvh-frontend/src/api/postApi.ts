@@ -115,7 +115,10 @@ export async function createPost(post: PostRequest, images: File[]): Promise<Pos
 
 export async function updatePost(id: number | string, post: PostRequest): Promise<Post> {
   const { data } = await api.put(`/api/posts/${id}`, {
-    data: post,
+    data: {
+      ...post,
+      id: undefined,
+    },
   });
   return mapStrapiData(data.data);
 }

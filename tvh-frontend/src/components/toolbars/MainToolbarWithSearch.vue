@@ -58,10 +58,12 @@
             :options="teams"
             class="bg-white"
             clearable
+            clear-icon="ph-x-circle"
             option-value="id"
             option-label="name"
             emit-value
             map-options
+            dropdown-icon="ph-caret-down"
           />
         </q-card-section>
         <q-card-actions class="row justify-end">

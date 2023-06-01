@@ -8,7 +8,7 @@
     >
       <q-item-section>
         <q-item-label>
-          {{ trainingTime.dayOfWeek }} {{ trainingTime.from }} - {{  trainingTime.to }} Uhr
+          {{ trainingTime.dayOfWeekLabel }} {{ trainingTime.from }} - {{  trainingTime.to }} Uhr
         </q-item-label>
         <q-item-label v-if="trainingTime.place?.name" caption>
           {{ trainingTime.place?.name }}
@@ -16,7 +16,7 @@
       </q-item-section>
       <q-item-section class="col-4" avatar>
         <div class="row">
-          <q-btn round flat icon="ph-pencil" dense></q-btn>
+          <q-btn round flat icon="ph-pencil" dense @click="editTime(trainingTime)"></q-btn>
           <q-btn round flat icon="ph-trash" dense @click="deleteTime(trainingTime.id)"></q-btn>
         </div>
       </q-item-section>
@@ -51,7 +51,6 @@
           clear-icon="ph-x-circle"
           emit-value
           map-options
-          hide-dropdown-icon="ph-caret-up"
           dropdown-icon="ph-caret-down"
         />
         <div class="text-weight-medium">Von<span class="text-red">*</span></div>
@@ -87,14 +86,13 @@
           emit-value
           map-options
           clear-icon="ph-x-circle"
-          hide-dropdown-icon="ph-caret-up"
           dropdown-icon="ph-caret-down"
         />
       </q-card-section>
       <q-card-actions class="row justify-end">
         <q-btn color="primary" flat @click="resetNewDialog">Abbrechen</q-btn>
-        <q-btn color="primary" @click="addTrainingTime" unelevated :loading="loading">
-          Trainingszeit hinzufügen
+        <q-btn color="primary" @click="saveTrainingTime" unelevated :loading="loading">
+          {{ editingId > 0 ? 'Trainingszeit speichern' : 'Trainingszeit hinzufügen' }}
         </q-btn>
       </q-card-actions>
     </q-card>
@@ -108,11 +106,12 @@ import {
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
 import { useQuasar, date } from 'quasar';
 import {
-  TrainingTime, TrainingTimeRequest, createTrainingTime, deleteTrainingTime,
+  TrainingTime, TrainingTimeRequest, createTrainingTime, deleteTrainingTime, updateTrainingTime,
 } from 'src/api/trainingTimeApi';
 import { useRoute } from 'vue-router';
 import { timeToHourMinute } from 'src/api/format';
 import usePlaceApi from 'src/hooks/usePlaceApi';
+import useLog from 'src/hooks/useLog';
 
 interface Props {
   modelValue: TrainingTime[];
@@ -133,11 +132,13 @@ const props = defineProps<Props>();
 const route = useRoute();
 const $q = useQuasar();
 const { show } = useNotify();
+const { log } = useLog();
 const { loadPlaceOptions, loadingPlaces, placeOptions } = usePlaceApi();
 
 const newTrainingTime: Ref<TrainingTimeRequest> = ref(resetTrainingTime);
 const showNewDialog = ref(false);
 const loading = ref(false);
+const editingId = ref(-1);
 
 const dayOfWeekOptions = computed(() => dayMap.map((day, index) => {
   if (day === '') {
@@ -153,47 +154,84 @@ const trainingTimes = computed(() => props.modelValue?.map((training) => ({
   ...training,
   from: timeToHourMinute(training.from),
   to: timeToHourMinute(training.to),
-  dayOfWeek: dayMap[training.dayOfWeek],
+  dayOfWeekLabel: dayMap[training.dayOfWeek],
 })) || []);
 
 function resetNewDialog() {
   showNewDialog.value = false;
   newTrainingTime.value = resetTrainingTime;
+  editingId.value = -1;
 }
 
-async function addTrainingTime() {
-  try {
-    loading.value = true;
-    const to = date.formatDate(date.extractDate(newTrainingTime.value.to, 'HH:mm'), 'HH:mm:ss.SSS');
-    const from = date.formatDate(date.extractDate(newTrainingTime.value.to, 'HH:mm'), 'HH:mm:ss.SSS');
-    const fullTrainingTime = await createTrainingTime({
-      ...newTrainingTime.value,
-      teams: [id.value],
-      to,
-      from,
-    });
-    const place = placeOptions.value?.find(
-      (option) => option.value === newTrainingTime.value.place,
-    );
-    if (place) {
-      fullTrainingTime.place = {
-        ...fullTrainingTime.place,
-        name: place.label,
-        id: place.value,
-      };
+async function saveTrainingTime() {
+  console.log(newTrainingTime.value.dayOfWeek);
+  if (editingId.value > 0) {
+    try {
+      loading.value = true;
+      const to = date.formatDate(date.extractDate(newTrainingTime.value.to, 'HH:mm'), 'HH:mm:ss.SSS');
+      const from = date.formatDate(date.extractDate(newTrainingTime.value.from, 'HH:mm'), 'HH:mm:ss.SSS');
+      const fullTrainingTime = await updateTrainingTime(editingId.value, {
+        ...newTrainingTime.value,
+        teams: [id.value],
+        to,
+        from,
+      });
+      emits('update:modelValue', [
+        ...props.modelValue.filter((time) => time.id !== editingId.value),
+        {
+          ...props.modelValue.find((time) => time.id === editingId.value),
+          ...fullTrainingTime,
+        },
+      ]);
+      show('Trainingszeit gespeichert', NotifyType.Success);
+      resetNewDialog();
+    } catch (error) {
+      log('TeamMemberApi', error);
+      show('Trainingszeit konnte nicht gespeichert werden. Bitte versuche es erneut.', NotifyType.Error);
+    } finally {
+      loading.value = false;
     }
-    emits('update:modelValue', [
-      ...props.modelValue,
-      fullTrainingTime,
-    ]);
-    show('Trainingszeit hinzugefügt', NotifyType.Success);
-    resetNewDialog();
-  } catch (error) {
-    console.log(error);
-    show('Trainingszeit konnte nicht hinzugefügt werden. Bitte versuche es erneut.', NotifyType.Error);
-  } finally {
-    loading.value = false;
+  } else {
+    try {
+      loading.value = true;
+      const to = date.formatDate(date.extractDate(newTrainingTime.value.to, 'HH:mm'), 'HH:mm:ss.SSS');
+      const from = date.formatDate(date.extractDate(newTrainingTime.value.from, 'HH:mm'), 'HH:mm:ss.SSS');
+
+      const fullTrainingTime = await createTrainingTime({
+        ...newTrainingTime.value,
+        teams: [id.value],
+        to,
+        from,
+      });
+      const place = placeOptions.value?.find(
+        (option) => option.value === newTrainingTime.value.place,
+      );
+      if (place) {
+        fullTrainingTime.place = {
+          ...fullTrainingTime.place,
+          name: place.label,
+          id: place.value,
+        };
+      }
+      emits('update:modelValue', [
+        ...props.modelValue,
+        fullTrainingTime,
+      ]);
+      show('Trainingszeit hinzugefügt', NotifyType.Success);
+      resetNewDialog();
+    } catch (error) {
+      console.log(error);
+      show('Trainingszeit konnte nicht hinzugefügt werden. Bitte versuche es erneut.', NotifyType.Error);
+    } finally {
+      loading.value = false;
+    }
   }
+}
+
+function editTime(time: TrainingTime) {
+  editingId.value = time.id;
+  newTrainingTime.value = { ...time, place: time.place.id };
+  showNewDialog.value = true;
 }
 
 async function deleteTime(timeId: number) {
