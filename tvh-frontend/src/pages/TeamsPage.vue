@@ -11,8 +11,8 @@
           @click="goToDetailPage(team)"
         >
           <q-item-section avatar v-if="team.teamImage">
-            <q-avatar fit="contain" rounded>
-              <q-img :src="team.teamImage?.formats.small.url"></q-img>
+            <q-avatar rounded style="width: 60px">
+              <q-img :src="team.teamImage?.formats.thumbnail.url" fit="cover" :ratio="6/4"></q-img>
             </q-avatar>
           </q-item-section>
           <q-item-section>

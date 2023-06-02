@@ -8,7 +8,7 @@
     >
       <q-item-section avatar>
         <q-img
-          :src="member?.image?.url"
+          :src="member?.image?.formats.thumbnail.url"
           fit="cover"
           :ratio="1"
           class="rounded-borders"

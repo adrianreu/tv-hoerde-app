@@ -5,11 +5,11 @@
         :src="team?.teamImage?.url"
         :ratio="16/9"
         fit="cover"
-        class="q-mb-md"
+        class="q-mb-md rounded-borders"
       ></q-img>
       <q-card
         v-if="team?.isRecruiting"
-        class="q-mt-lg q-mb-md red-shadow relative"
+        class="q-mt-lg q-mb-md red-shadow relative rounded-borders"
         style="overflow: hidden;"
       >
         <q-card-section style="z-index: 1">

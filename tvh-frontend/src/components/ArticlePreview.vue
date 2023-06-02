@@ -11,7 +11,7 @@
     </div>
     </div>
     <div v-if="imageUrl" class="col-4">
-      <q-img :ratio="4/3" :src="imageUrl" class="rounded-borders" fit="contain"></q-img>
+      <q-img :ratio="6/4" :src="imageUrl" class="rounded-borders" fit="cover"></q-img>
     </div>
   </div>
 </template>

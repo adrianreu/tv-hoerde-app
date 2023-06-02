@@ -1,4 +1,18 @@
 import { api } from 'src/boot/axios';
+import { StrapiGeneral } from 'src/interfaces/StrapiInterfaces';
+
+export enum RoleType {
+  Authenticated = 'authenticated',
+  TeamEditor = 'teameditor',
+  Editor = 'eventeditor',
+  Public = 'public'
+}
+
+export interface Role extends StrapiGeneral {
+  description: string;
+  type: RoleType;
+  name: string;
+}
 
 export interface User {
   id: number;
@@ -11,6 +25,7 @@ export interface User {
   updatedAt: Date;
   firstname: string;
   lastname: string;
+  role?: Role;
 }
 
 export interface LoginResponse {

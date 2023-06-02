@@ -71,3 +71,7 @@ export async function createBooking(booking: BookingRequest): Promise<Booking> {
   });
   return mapStrapiData(data.data);
 }
+
+export async function deleteBooking(id: string | number) {
+  return api.delete(`/api/bookings/${id}`);
+}

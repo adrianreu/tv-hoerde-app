@@ -16,10 +16,10 @@
             <q-item v-if="loggedIn">
               <q-item-section avatar>
                 <q-avatar rounded color="accent" text-color="white">
-                  {{ user?.username?.substring(0, 1) }}
+                  {{ user?.firstname?.substring(0, 1) }}
                 </q-avatar>
               </q-item-section>
-              <q-item-section>{{ user?.username }}</q-item-section>
+              <q-item-section>{{ user?.firstname }} {{ user?.lastname }}</q-item-section>
             </q-item>
           </q-list>
         </div>

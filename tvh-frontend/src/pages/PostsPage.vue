@@ -29,7 +29,7 @@
               v-model="page"
               :max="totalPages"
               direction-links
-              :max-pages="7"
+              :max-pages="9"
               flat
               color="grey"
               active-color="primary"
@@ -40,7 +40,7 @@
       </div>
     </loading-wrapper>
     <bottom-action>
-      <q-btn flat class="full-width" to="/post-editor/new">
+      <q-btn v-if="canCreateNewPost" flat class="full-width" to="/post-editor/new">
         <q-icon name="ph-plus" class="q-mr-sm"></q-icon>Neuer Beitrag
       </q-btn>
     </bottom-action>
@@ -51,17 +51,19 @@
 import ArticlePreview from 'src/components/ArticlePreview.vue';
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
-import { Post, getPosts } from 'src/api/postApi';
+import { Post } from 'src/api/postApi';
 import { scroll } from 'quasar';
 import LoadingWrapper from 'src/components/LoadingWrapper.vue';
 import BottomAction from 'src/components/BottomAction.vue';
 import { usePostSearchStore } from 'src/stores/postSearchStore';
 import { storeToRefs } from 'pinia';
+import { useCanDo } from 'src/hooks/useCanDo';
 
 const { setVerticalScrollPosition } = scroll;
 
 const router = useRouter();
 const postSearchStore = usePostSearchStore();
+const { canCreateNewPost } = useCanDo();
 
 const {
   loading,
