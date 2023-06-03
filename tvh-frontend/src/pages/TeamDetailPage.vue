@@ -144,7 +144,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <bottom-action>
+    <bottom-action v-if="canEditTeam">
       <q-btn flat class="full-width" :to="'/team-editor/' + id">
         <q-icon name="ph-pencil-simple" class="q-mr-sm"/>
         Bearbeiten
@@ -164,9 +164,11 @@ import { useRoute } from 'vue-router';
 import BottomAction from 'src/components/BottomAction.vue';
 import useVolleyballPositions from 'src/hooks/useVolleyballPositions';
 import { date } from 'quasar';
+import { useCanDo } from 'src/hooks/useCanDo';
 
 const route = useRoute();
 const teamStore = useTeamStore();
+const { canEditTeam } = useCanDo();
 const { positionOptionsOnlyLabels, positionValueToLabel } = useVolleyballPositions();
 
 const dayMap = ['', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];

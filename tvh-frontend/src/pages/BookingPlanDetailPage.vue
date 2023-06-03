@@ -205,19 +205,6 @@
               map-options
               :disable="selectedStartTime === null"
             />
-            <div class="text-weight-medium q-mt-md">
-              Anzahl Personen<span class="text-red">*</span>
-            </div>
-            <q-input
-              v-model="amountPersons"
-              placeholder="Anzahl Personen"
-              type="number"
-              dense
-              outlined
-              class="bg-white"
-              :min="2"
-              :max="20"
-            ></q-input>
           </q-card-section>
           <q-card-actions class="row justify-end">
             <q-btn color="primary" flat @click="resetForm">Abbrechen</q-btn>
@@ -284,7 +271,6 @@ const showInspectDialog: Ref<boolean> = ref(false);
 const selectedStartTime: Ref<Date | null> = ref(null);
 const selectedEndTime: Ref<Date | null> = ref(null);
 const selectedCourt: Ref<number | null> = ref(null);
-const amountPersons: Ref<number> = ref(2);
 const selectedBooking: Ref<Booking | null> = ref(null);
 
 const courtsAmounts: ComputedRef<number> = computed(() => courts.value.length || 0);
@@ -317,7 +303,9 @@ const timeSlots: ComputedRef<TimeSlot[]> = computed(() => {
   return slots;
 });
 const courtsWithSlots: ComputedRef<CourtWithSlots[]> = computed(() => courts.value.map((court) => {
-  const slots: TimeSlot[] = structuredClone(timeSlots.value);
+  const slots: TimeSlot[] = typeof structuredClone !== 'undefined'
+    ? structuredClone(timeSlots.value)
+    : JSON.parse(JSON.stringify(timeSlots.value));
   const courtBookings = bookings.value.filter((booking) => booking.bookedCourt.id === court.id);
   courtBookings.forEach((booking) => {
     const startTime = extractISODate(booking.startTime);

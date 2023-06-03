@@ -17,7 +17,7 @@
         Nachname<span class="text-red" v-if="!anonymous">*</span>
       </div>
       <q-input
-        v-model="feedbackFormular.firstname"
+        v-model="feedbackFormular.lastname"
         placeholder="Nachname"
         dense
         outlined

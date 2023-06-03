@@ -9,6 +9,6 @@ export interface FeedbackRequest {
 
 export async function createFeedback(feedback: FeedbackRequest): Promise<void> {
   await api.post('/api/feedbacks', {
-    data: feedback,
+    data: { data: feedback },
   });
 }

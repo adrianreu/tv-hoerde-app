@@ -18,7 +18,6 @@ const footerExists = computed(() => !!document?.getElementById('footer-portal'))
 function checkingFooter() {
   if (footerRendered.value || footerExists.value) return;
   setTimeout(() => {
-    console.log('check');
     footerRendered.value = !!document?.getElementById('footer-portal');
     checkingFooter();
   }, 100);

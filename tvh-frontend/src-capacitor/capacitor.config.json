@@ -1,0 +1,17 @@
+{
+  "appId": "de.tvhoerde.app",
+  "appName": "TV Hörde",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "www",
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_tvh",
+      "iconColor": "#E31E24",
+      "sound": "beep.wav"
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

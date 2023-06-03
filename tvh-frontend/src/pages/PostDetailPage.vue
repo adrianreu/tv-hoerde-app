@@ -35,7 +35,7 @@
       {{ formattedAuthor }} {{ formattedAuthor ? '-' : '' }} {{ formattedDate }}
     </div>
     <div v-html="cleanText" class="text-justify"></div>
-    <bottom-action>
+    <bottom-action v-if="canEditPost">
       <q-btn flat class="full-width bg-accent" @click="deleteDetailPost">
         <q-icon name="ph-trash" class="q-mr-sm"/>
         Löschen
@@ -56,10 +56,12 @@ import sanitizeHtml from 'sanitize-html';
 import { toGermanDate } from 'src/api/format';
 import BottomAction from 'src/components/BottomAction.vue';
 import { useQuasar } from 'quasar';
+import { useCanDo } from 'src/hooks/useCanDo';
 
 const route = useRoute();
 const router = useRouter();
 const $q = useQuasar();
+const { canEditPost } = useCanDo();
 const id = computed(() => route.params.id);
 const post = ref<Post>();
 const slide = ref();

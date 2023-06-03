@@ -40,7 +40,7 @@
       </div>
     </loading-wrapper>
     <bottom-action>
-      <q-btn v-if="canCreateNewPost" flat class="full-width" to="/post-editor/new">
+      <q-btn v-if="canEditPost" flat class="full-width" to="/post-editor/new">
         <q-icon name="ph-plus" class="q-mr-sm"></q-icon>Neuer Beitrag
       </q-btn>
     </bottom-action>
@@ -63,7 +63,7 @@ const { setVerticalScrollPosition } = scroll;
 
 const router = useRouter();
 const postSearchStore = usePostSearchStore();
-const { canCreateNewPost } = useCanDo();
+const { canEditPost } = useCanDo();
 
 const {
   loading,

@@ -72,6 +72,7 @@ module.exports = {
 
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
 
     'import/first': 'off',
     'import/named': 'error',

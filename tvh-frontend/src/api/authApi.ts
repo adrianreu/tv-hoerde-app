@@ -4,7 +4,7 @@ import { StrapiGeneral } from 'src/interfaces/StrapiInterfaces';
 export enum RoleType {
   Authenticated = 'authenticated',
   TeamEditor = 'teameditor',
-  Editor = 'eventeditor',
+  AppEditor = 'appeditor',
   Public = 'public'
 }
 
@@ -35,8 +35,10 @@ export interface LoginResponse {
 
 export async function login(username: string, password: string): Promise<LoginResponse> {
   const { data } = await api.post('/api/auth/local', {
-    identifier: username,
-    password,
+    data: {
+      identifier: username,
+      password,
+    },
   });
   return data;
 }

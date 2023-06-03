@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <loading-wrapper :loading="loading">
-      <q-list separator>
+      <q-list separator v-if="teamStore.getTeams.length > 0">
         <q-separator/>
         <q-item
           clickable
@@ -25,6 +25,9 @@
         </q-item>
         <q-separator/>
       </q-list>
+      <div class="flex flex-center full-height q-mt-md" v-else>
+        Keine Mannschaften gefunden.
+      </div>
     </loading-wrapper>
     <!-- <bottom-action>
       <q-btn flat class="full-width">

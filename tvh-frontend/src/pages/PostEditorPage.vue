@@ -75,7 +75,7 @@
         </q-file>
       </div>
     </div>
-    <bottom-action v-if="canCreateNewPost">
+    <bottom-action>
       <q-btn flat class="full-width" @click="save" :loading="loading" :disable="loading">
         <q-icon name="ph-floppy-disk" class="q-mr-sm"/>
         {{ isNew ? 'Neu anlegen' : 'Speichern' }}
@@ -103,14 +103,12 @@ import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
 import { useTeamStore } from 'src/stores/teamStore';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
-import { useCanDo } from 'src/hooks/useCanDo';
 
 // composables
 const route = useRoute();
 const notify = useNotify();
 const authStore = useAuthStore();
 const teamStore = useTeamStore();
-const { canCreateNewPost } = useCanDo();
 
 // refs
 const { user } = storeToRefs(authStore);
@@ -163,9 +161,8 @@ async function save() {
         title: fullPost.title,
         relatedTeam: fullPost.relatedTeam?.id,
       };
-      notify.show('Beitrag erstellt', NotifyType.Success);
     } catch (error) {
-      // TODO add error handling
+      notify.show('Beitrag konnte nicht angelegt werden. Bitte versuche es erneut.', NotifyType.Error);
       console.log(error);
     } finally {
       loading.value = false;

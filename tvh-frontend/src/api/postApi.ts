@@ -4,7 +4,7 @@ import {
   StrapiImage,
   StrapiMetaPagination,
 } from 'src/interfaces/StrapiInterfaces';
-import { mapStrapiData, mapStrapiRequestData, toStrapiPagination } from './strapiMapper';
+import { mapStrapiData } from './strapiMapper';
 import { User } from './authApi';
 import { Team } from './teamApi';
 
@@ -93,7 +93,7 @@ export async function deletePost(id: number | string) {
 
 export async function createPost(post: PostRequest, images: File[]): Promise<Post> {
   const { data } = await api.post('/api/posts', {
-    data: post,
+    data: { data: post },
   });
   const newPost = mapStrapiData(data.data);
   newPost.images = [];
@@ -103,7 +103,8 @@ export async function createPost(post: PostRequest, images: File[]): Promise<Pos
     form.append('refId', newPost.id);
     form.append('ref', 'api::post.post');
     form.append('field', 'images');
-    const uploadedImage = await api.post('http://127.0.0.1:9123/api/upload', form, {
+    const uploadedImage = await api.post('http://127.0.0.1:9123/api/upload', {
+      data: form,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -116,8 +117,10 @@ export async function createPost(post: PostRequest, images: File[]): Promise<Pos
 export async function updatePost(id: number | string, post: PostRequest): Promise<Post> {
   const { data } = await api.put(`/api/posts/${id}`, {
     data: {
-      ...post,
-      id: undefined,
+      data: {
+        ...post,
+        id: undefined,
+      },
     },
   });
   return mapStrapiData(data.data);

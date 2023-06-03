@@ -9,6 +9,7 @@
     "lint": "eslint --ext .js,.ts,.vue ./",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
+    "dev:android": "quasar dev -m capacitor -T android -y",
     "build": "quasar build"
   },
   "dependencies": {

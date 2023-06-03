@@ -63,10 +63,12 @@ export async function getTeam(id: number | string): Promise<Team> {
 export async function updateTeam(id: number | string, team: TeamRequest): Promise<Team> {
   const { data } = await api.put(`/api/teams/${id}`, {
     data: {
-      ...team,
-      teamMembers: undefined,
-      trainingTimes: undefined,
-      teamImage: undefined,
+      data: {
+        ...team,
+        teamMembers: undefined,
+        trainingTimes: undefined,
+        teamImage: undefined,
+      },
     },
   });
 

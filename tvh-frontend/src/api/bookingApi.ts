@@ -63,8 +63,7 @@ export async function getBookings(placeId?: number, forDate?: Date): Promise<Boo
 
 export async function createBooking(booking: BookingRequest): Promise<Booking> {
   const { data } = await api.post('/api/bookings', {
-    data: booking,
-  }, {
+    data: { data: booking },
     params: {
       populate: '*',
     },

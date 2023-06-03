@@ -22,7 +22,7 @@ const baseUrl = '/api/training-times';
 
 export async function createTrainingTime(trainingTime: TrainingTimeRequest): Promise<TrainingTime> {
   const { data } = await api.post(baseUrl, {
-    data: trainingTime,
+    data: { data: trainingTime },
     params: {
       populate: '*',
     },
@@ -36,8 +36,10 @@ export async function updateTrainingTime(
 ): Promise<TrainingTime> {
   const { data } = await api.put(`/api/training-times/${id}`, {
     data: {
-      ...trainingTime,
-      id: undefined,
+      data: {
+        ...trainingTime,
+        id: undefined,
+      },
     },
   });
   return mapStrapiData(data.data);

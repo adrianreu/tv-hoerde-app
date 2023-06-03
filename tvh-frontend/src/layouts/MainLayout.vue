@@ -28,6 +28,7 @@
           <q-list separator>
             <q-separator/>
             <q-item
+              v-if="loggedIn"
               clickable
               v-ripple
               to="/booking-plans"

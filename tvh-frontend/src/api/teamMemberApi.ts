@@ -26,8 +26,10 @@ export interface TeamMemberRequest {
 export async function createTeamMember(teamMember: TeamMemberRequest): Promise<TeamMember> {
   const { data } = await api.post('/api/team-members', {
     data: {
-      ...teamMember,
-      image: undefined,
+      data: {
+        ...teamMember,
+        image: undefined,
+      },
     },
   });
   const newTeamMember = mapStrapiData(data.data);
@@ -37,7 +39,8 @@ export async function createTeamMember(teamMember: TeamMemberRequest): Promise<T
     form.append('refId', newTeamMember.id);
     form.append('ref', 'api::team-member.team-member');
     form.append('field', 'image');
-    const uploadResponse = await api.post('http://127.0.0.1:9123/api/upload', form, {
+    const uploadResponse = await api.post('http://127.0.0.1:9123/api/upload', {
+      data: form,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -54,9 +57,11 @@ export async function updateTeamMember(
 ): Promise<TeamMember> {
   const { data } = await api.put(`/api/team-members/${id}`, {
     data: {
-      ...teamMember,
-      image: undefined,
-      id: undefined,
+      data: {
+        ...teamMember,
+        image: undefined,
+        id: undefined,
+      },
     },
   });
   return mapStrapiData(data.data);

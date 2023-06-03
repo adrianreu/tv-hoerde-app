@@ -2,7 +2,7 @@ import { StrapiGeneral } from 'src/interfaces/StrapiInterfaces';
 import { api } from 'src/boot/axios';
 import { date } from 'quasar';
 import { Place } from './placeApi';
-import { mapStrapiData, mapStrapiRequestData, toStrapiPagination } from './strapiMapper';
+import { mapStrapiData, toStrapiPagination } from './strapiMapper';
 
 export interface Event extends StrapiGeneral {
   name: string;
@@ -49,7 +49,7 @@ export async function getEvent(id: number | string): Promise<Event> {
 
 export async function createEvent(event: EventRequest): Promise<Event> {
   const { data } = await api.post('/api/events', {
-    data: event,
+    data: { data: event },
   });
   return mapStrapiData(data.data);
 }

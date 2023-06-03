@@ -2,6 +2,7 @@ import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { RoleType, User, login } from 'src/api/authApi';
 import { getMe } from 'src/api/userApi';
+import { api } from 'src/boot/axios';
 import { computed } from 'vue';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -16,6 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchUserInformation() {
     if (loggedIn.value) {
+      api.setToken(jwt.value);
       try {
         const userInfo = await getMe();
         userJson.value = JSON.stringify(userInfo);
@@ -26,19 +28,17 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function doLogin(username: string, password: string) {
-    try {
-      const loginResponse = await login(username, password);
-      userJson.value = JSON.stringify(loginResponse.user);
-      jwt.value = loginResponse.jwt;
-      fetchUserInformation();
-    } catch (error) {
-      console.log(error);
-    }
+    const loginResponse = await login(username, password);
+    console.log(loginResponse);
+    userJson.value = JSON.stringify(loginResponse.user);
+    jwt.value = loginResponse.jwt;
+    await fetchUserInformation();
   }
 
   function doLogout() {
     userJson.value = null;
     jwt.value = '';
+    api.setToken(undefined);
   }
 
   return {

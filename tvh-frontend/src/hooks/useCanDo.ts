@@ -5,18 +5,20 @@ import { computed } from 'vue';
 export function useCanDo() {
   const { userHasARole } = useAuthStore();
 
-  const canCreateNewPost = computed<boolean>(() => userHasARole([
-    RoleType.TeamEditor, RoleType.Authenticated,
+  const canEditPost = computed<boolean>(() => userHasARole([
+    RoleType.AppEditor,
   ]));
 
   const canEditTeam = computed<boolean>(() => userHasARole([
-    RoleType.TeamEditor,
+    RoleType.TeamEditor, RoleType.AppEditor,
   ]));
 
   const canEditEvent = computed<boolean>(() => userHasARole([
-    RoleType.TeamEditor,
+    RoleType.AppEditor,
   ]));
   return {
-    canCreateNewPost,
+    canEditPost,
+    canEditTeam,
+    canEditEvent,
   };
 }
