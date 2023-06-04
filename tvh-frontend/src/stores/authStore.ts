@@ -29,7 +29,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function doLogin(username: string, password: string) {
     const loginResponse = await login(username, password);
-    console.log(loginResponse);
     userJson.value = JSON.stringify(loginResponse.user);
     jwt.value = loginResponse.jwt;
     await fetchUserInformation();

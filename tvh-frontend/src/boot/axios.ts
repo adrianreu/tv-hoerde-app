@@ -1,13 +1,16 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { CapacitorHttp, HttpOptions, HttpResponse } from '@capacitor/core';
 import qs from 'qs';
+import { CapacitorHttp, HttpOptions, HttpResponse } from '@capacitor/core';
+import { useAuthStore } from 'src/stores/authStore';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     $axios: AxiosInstance;
   }
 }
+
+const authStore = useAuthStore();
 
 const mode = process.env.MODE;
 const isCapacitor = mode === 'capacitor';
@@ -34,6 +37,7 @@ class HttpWrapper {
 
   getAxiosStandardHeaders(): { [key: string]: string } {
     const headers = this.axiosClient.defaults.headers.common;
+    // without this capacitor dont work -.- bullshit
     headers['Content-Type'] = 'application/json';
     const newHeaders: any = {};
     Object.keys(headers).forEach((key): void => {
@@ -48,6 +52,8 @@ class HttpWrapper {
     url: string,
     config?: AxiosRequestConfig,
   ): Promise<AxiosResponse | HttpResponse> {
+    this.axiosClient.defaults.headers.common.Authorization = authStore.jwt === ''
+      ? undefined : `Bearer ${authStore.jwt}`;
     return isCapacitor
       ? HttpWrapper.handleCapacitorError(
         await this.capacitorClient.get(this.mapAxiosConfig(url, config)),
@@ -56,22 +62,28 @@ class HttpWrapper {
   }
 
   async post(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse | HttpResponse> {
+    this.axiosClient.defaults.headers.common.Authorization = authStore.jwt === ''
+      ? undefined : `Bearer ${authStore.jwt}`;
     return isCapacitor
       ? HttpWrapper.handleCapacitorError(
         await this.capacitorClient.request({ ...this.mapAxiosConfig(url, config), method: 'POST' }),
       )
-      : this.axiosClient.post(url, { data: config?.data }, config);
+      : this.axiosClient.post(url, config?.data, config);
   }
 
   async put(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse | HttpResponse> {
+    this.axiosClient.defaults.headers.common.Authorization = authStore.jwt === ''
+      ? undefined : `Bearer ${authStore.jwt}`;
     return isCapacitor
       ? HttpWrapper.handleCapacitorError(
         await this.capacitorClient.put(this.mapAxiosConfig(url, config)),
       )
-      : this.axiosClient.put(url, { data: config?.data }, config);
+      : this.axiosClient.put(url, config?.data, config);
   }
 
   async delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse | HttpResponse> {
+    this.axiosClient.defaults.headers.common.Authorization = authStore.jwt === ''
+      ? undefined : `Bearer ${authStore.jwt}`;
     return isCapacitor
       ? HttpWrapper.handleCapacitorError(
         await this.capacitorClient.delete(this.mapAxiosConfig(url, config)),
@@ -80,14 +92,16 @@ class HttpWrapper {
   }
 
   async patch(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse | HttpResponse> {
+    this.axiosClient.defaults.headers.common.Authorization = authStore.jwt === ''
+      ? undefined : `Bearer ${authStore.jwt}`;
     return isCapacitor
       ? HttpWrapper.handleCapacitorError(
         await this.capacitorClient.patch(this.mapAxiosConfig(url, config)),
       )
-      : this.axiosClient.patch(url, { data: config?.data }, config);
+      : this.axiosClient.patch(url, config?.data, config);
   }
 
-  static handleCapacitorError(request: HttpResponse) {
+  static handleCapacitorError(request: HttpResponse): Promise<HttpResponse> {
     return new Promise((resolve, reject) => {
       if (request.status > 299) {
         reject(request);
@@ -116,16 +130,13 @@ class HttpWrapper {
         encodeValuesOnly: true, // prettify URL
       });
     }
-    const retörn = {
+    return {
       url: `${this.baseUrl}${url}${paramString}` || '',
       data: config?.data,
       headers: strippedHeaders,
       responseType: 'json',
       body: JSON.stringify(config?.data),
     };
-
-    console.log(retörn);
-    return retörn;
   }
 
   setToken(token: string | undefined) {

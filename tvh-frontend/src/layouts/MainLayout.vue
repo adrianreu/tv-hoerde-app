@@ -141,7 +141,7 @@ function logout() {
   router.push('/login');
 }
 
-onMounted(() => {
-  authStore.fetchUserInformation();
+onMounted(async () => {
+  await authStore.fetchUserInformation();
 });
 </script>
