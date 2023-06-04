@@ -4,7 +4,8 @@
   "info": {
     "singularName": "change-request",
     "pluralName": "change-requests",
-    "displayName": "ChangeRequest"
+    "displayName": "ChangeRequest",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -19,6 +20,11 @@
     },
     "message": {
       "type": "text"
+    },
+    "booking": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::booking.booking"
     }
   }
 }

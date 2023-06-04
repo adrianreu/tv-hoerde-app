@@ -79,139 +79,19 @@
           Buchung anlegen
         </q-btn>
       </bottom-action>
-      <q-dialog v-model="showInspectDialog">
-        <q-card class="full-width">
-          <q-card-section class="q-dialog__title">
-            Buchung ansehen
-          </q-card-section>
-          <q-card-section>
-            <div class="row q-col-gutter-sm">
-              <div class="col-6">
-                <div class="text-weight-bold">
-                  Datum
-                </div>
-                <div>
-                  {{ date.formatDate(new Date(selectedBooking?.startTime || ''), 'DD.MM.YYYY') }}
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="text-weight-bold">
-                  Feld
-                </div>
-                <div>
-                  {{ selectedBooking?.bookedCourt?.id }}
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="text-weight-bold">
-                  Zeitraum
-                </div>
-                <div>
-                  {{ date.formatDate(new Date(selectedBooking?.startTime || ''), 'HH:mm') }} -
-                  {{ date.formatDate(new Date(selectedBooking?.endTime || ''), 'HH:mm') }}
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="text-weight-bold">
-                  Gebucht von
-                </div>
-                <div>
-                  {{ selectedBooking?.bookedBy?.firstname }}
-                  {{ selectedBooking?.bookedBy?.lastname }}
-                </div>
-              </div>
-            </div>
-          </q-card-section>
-          <q-card-actions class="row justify-end">
-            <q-btn
-            v-if="selectedBooking?.bookedBy?.id === userId"
-            color="primary"
-            flat
-            @click="doDeleteBooking"
-            >Löschen</q-btn>
-            <q-btn
-            v-else
-            color="primary"
-            flat
-            @click="showInspectDialog = false"
-            >Antrag auf Änderung</q-btn>
-            <q-btn color="primary" flat @click="showInspectDialog = false">Schliessen</q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-      <q-dialog v-model="showBookingDialog">
-        <q-card class="full-width">
-          <q-card-section class="q-dialog__title">
-            Buchung anlegen
-          </q-card-section>
-          <q-card-section class="q-gutter-sm">
-            <div class="text-weight-medium">
-              Datum
-            </div>
-            <q-input
-              :model-value="formattedDate"
-              dense
-              outlined
-              class="bg-white"
-              clearable
-              clear-icon="ph-x-circle"
-              disable
-            />
-            <div class="text-weight-medium q-mt-md">
-              Feld
-            </div>
-            <q-select
-              v-model="selectedCourt"
-              dense
-              outlined
-              :options="courts"
-              class="bg-white"
-              clearable
-              clear-icon="ph-x-circle"
-              emit-value
-              map-options
-              option-label="name"
-              option-value="id"
-              dropdown-icon="ph-caret-down"
-            />
-            <div class="text-weight-medium q-mt-md">
-              Startzeit<span class="text-red">*</span>
-            </div>
-            <q-select
-              v-model="selectedStartTime"
-              dense
-              outlined
-              :options="startTimeOptions"
-              class="bg-white"
-              clearable
-              clear-icon="ph-x-circle"
-              emit-value
-              dropdown-icon="ph-caret-down"
-              map-options
-            />
-            <div class="text-weight-medium q-mt-md">
-              Endzeit<span class="text-red">*</span>
-            </div>
-            <q-select
-              v-model="selectedEndTime"
-              dense
-              outlined
-              :options="endTimeOptions"
-              class="bg-white"
-              clearable
-              clear-icon="ph-x-circle"
-              dropdown-icon="ph-caret-down"
-              emit-value
-              map-options
-              :disable="selectedStartTime === null"
-            />
-          </q-card-section>
-          <q-card-actions class="row justify-end">
-            <q-btn color="primary" flat @click="resetForm">Abbrechen</q-btn>
-            <q-btn color="primary" flat @click="bookCourt">Buchen</q-btn>
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
+
+      <inspection-dialog
+        v-model="showInspectDialog"
+        :booking="selectedBooking"
+        @deleted="removeBooking"
+      />
+
+      <booking-dialog
+        v-model="showBookingDialog"
+        v-model:court-id="selectedCourt"
+        :court-with-slots="selectedCourtWithSlots"
+        @booked="(booking) => bookings.push(booking)"
+      />
     </loading-wrapper>
   </q-page>
 </template>
@@ -219,8 +99,6 @@
 <script setup lang="ts">
 import {
   Booking,
-  createBooking,
-  deleteBooking,
   getBookings,
 } from 'src/api/bookingApi';
 import {
@@ -233,10 +111,9 @@ import { extractISODate, toGermanWeekdayDate } from 'src/api/format';
 import { date } from 'quasar';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
 import BottomAction from 'src/components/BottomAction.vue';
-import { useAuthStore } from 'src/stores/authStore';
-import { storeToRefs } from 'pinia';
 import useLog from 'src/hooks/useLog';
-import useApprovalDialog from 'src/hooks/useDeleteDialog';
+import InspectionDialog from 'src/components/bookingPlan/InspectionDialog.vue';
+import BookingDialog from 'src/components/bookingPlan/BookingDialog.vue';
 import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
 
 interface TimeSlot {
@@ -253,13 +130,10 @@ interface CourtWithSlots extends BookableCourt {
 const route = useRoute();
 const { show } = useNotify();
 const { log } = useLog();
-const { checkApproval } = useApprovalDialog();
-const authStore = useAuthStore();
 
 const bookableTimeRange = [10, 22];
 
 // refs
-const { user, userId } = storeToRefs(authStore);
 const courts: Ref<BookableCourt[]> = ref([]);
 const bookings: Ref<Booking[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
@@ -332,38 +206,9 @@ const courtsWithSlots: ComputedRef<CourtWithSlots[]> = computed(() => courts.val
     timeSlots: [...slots],
   };
 }));
-const startTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
-  const options: { label: string, value: Date }[] = [];
-  const courtWithSlots = courtsWithSlots.value.find((court) => court.id === selectedCourt.value);
-  const filteredSlots = courtWithSlots?.timeSlots.filter((slot) => !slot.booking)
-    || timeSlots.value;
-  filteredSlots.forEach((slot, index) => {
-    options.push({ label: date.formatDate(slot.from, 'HH:mm'), value: slot.from });
-    if (index === filteredSlots.length - 1) {
-      options.push({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to });
-    }
-  });
-  return options;
-});
-
-const endTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
-  if (selectedEndTime.value === null) return startTimeOptions.value;
-  const options: { label: string, value: Date }[] = [];
-  const courtWithSlots = courtsWithSlots.value.find((court) => court.id === selectedCourt.value);
-  const filteredSlots = courtWithSlots?.timeSlots || timeSlots.value;
-
-  for (let i = 0; i < filteredSlots.length; i += 1) {
-    const slot = filteredSlots[i];
-    const dateDifference = date.getDateDiff(slot.from, selectedStartTime.value || '', 'minutes');
-    if (dateDifference > 0) {
-      options.push({ label: date.formatDate(slot.from, 'HH:mm'), value: slot.from });
-      if (slot.booking) {
-        break;
-      }
-    }
-  }
-  return options;
-});
+const selectedCourtWithSlots = computed(
+  () => courtsWithSlots.value.find((court) => court.id === selectedCourt.value) || null,
+);
 
 const colSize: ComputedRef<number> = computed(() => {
   switch (courtsAmounts.value) {
@@ -398,11 +243,12 @@ function openBookingDialog(courtId?: number, timeSlot?: TimeSlot) {
   if (timeSlot?.booking) {
     showInspectDialog.value = true;
     selectedBooking.value = timeSlot.booking;
-    console.log(selectedBooking.value);
     return;
   }
   if (courtId) {
     selectedCourt.value = courtId;
+  } else {
+    selectedCourt.value = courts.value[0].id;
   }
   if (timeSlot) {
     selectedStartTime.value = timeSlot.from;
@@ -411,68 +257,8 @@ function openBookingDialog(courtId?: number, timeSlot?: TimeSlot) {
   showBookingDialog.value = true;
 }
 
-function resetForm() {
-  showBookingDialog.value = false;
-  selectedStartTime.value = null;
-  selectedCourt.value = null;
-  selectedEndTime.value = null;
-}
-
-async function bookCourt() {
-  if (
-    !user.value?.id || !selectedStartTime.value || !selectedEndTime.value || !selectedCourt.value
-  ) {
-    show(
-      'Es fehlen Informationen um eine Buchung durchzuführen.',
-      NotifyType.Error,
-    );
-    return;
-  }
-  try {
-    loading.value = true;
-    const booking = await createBooking({
-      bookedBy: user.value.id,
-      startTime: selectedStartTime.value,
-      endTime: selectedEndTime.value,
-      bookedCourt: selectedCourt.value,
-    });
-    bookings.value.push(booking);
-    show('Buchung erstellt.', NotifyType.Success);
-    showBookingDialog.value = false;
-  } catch (error) {
-    log('bookCourt()', error);
-    show(
-      'Leider ist ein Fehler bei der Buchung aufgetreten. Bitte versuche es erneut.',
-      NotifyType.Error,
-    );
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function doDeleteBooking() {
-  const approved = await checkApproval('Sicher, dass du die Buchung löschen möchtest?');
-  const selectedBookingId = selectedBooking.value?.id;
-  if (approved && selectedBookingId) {
-    try {
-      loading.value = true;
-      await deleteBooking(selectedBookingId);
-      bookings.value = bookings.value.filter((booking) => booking.id !== selectedBookingId);
-      show('Buchung gelöscht.', NotifyType.Success);
-      showInspectDialog.value = false;
-    } catch (error) {
-      log('BookingPlanDetailPage - doDeleteBooking', error);
-      show(
-        'Leider ist ein Fehler bei der Löschung aufgetreten. Bitte versuche es erneut.',
-        NotifyType.Error,
-      );
-    } finally {
-      loading.value = false;
-    }
-    return;
-  }
-  console.log('noz pproved');
-  // TODO delete booking
+function removeBooking(bookingId: number) {
+  bookings.value = bookings.value.filter((booking) => booking.id !== bookingId);
 }
 
 function addToDate(sign: number) {
@@ -483,7 +269,6 @@ function addToDate(sign: number) {
 onMounted(async () => {
   loading.value = true;
   courts.value = await getBookableCourts(id.value);
-  selectedCourt.value = courts.value[0].id;
   await loadBookingsForDate();
   loading.value = false;
 });
