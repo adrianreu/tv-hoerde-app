@@ -89,6 +89,8 @@
       <booking-dialog
         v-model="showBookingDialog"
         v-model:court-id="selectedCourt"
+        v-model:selected-end-time="selectedEndTime"
+        v-model:selected-start-time="selectedStartTime"
         :court-with-slots="selectedCourtWithSlots"
         @booked="(booking) => bookings.push(booking)"
       />

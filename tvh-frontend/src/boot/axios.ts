@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import qs from 'qs';
 import { CapacitorHttp, HttpOptions, HttpResponse } from '@capacitor/core';
 import { useAuthStore } from 'src/stores/authStore';
+import { ComponentInternalInstance, getCurrentInstance } from 'vue';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -152,7 +153,19 @@ class HttpWrapper {
 // for each client)
 const api = new HttpWrapper();
 
-export default boot(({ router }) => {
+export default boot(({ router, app }) => {
+  if (process.env.NODE_ENV === 'development') {
+    app.mixin({
+      data: () => ({
+        appInstance: getCurrentInstance(),
+      }),
+      mounted() {
+        if (typeof this.appInstance?.vnode?.el?.setAttribute === 'undefined') return;
+        // eslint-disable-next-line no-underscore-dangle
+        this.appInstance?.vnode?.el?.setAttribute('component', this.appInstance?.type.__name);
+      },
+    });
+  }
   api.axiosClient.interceptors.response.use(
     (response) => response,
     (error) => {

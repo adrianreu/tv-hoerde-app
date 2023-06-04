@@ -1,5 +1,5 @@
 <template>
-  <q-dialog>
+  <q-dialog component="BookingDialog">
     <q-inner-loading :visible="loading">
       <div class="column">
         <spinning-volleyball></spinning-volleyball>
@@ -45,7 +45,7 @@
           Startzeit<span class="text-red">*</span>
         </div>
         <q-select
-          v-model="selectedStartTime"
+          :model-value="selectedStartTime"
           dense
           outlined
           :options="startTimeOptions"
@@ -55,12 +55,13 @@
           emit-value
           dropdown-icon="ph-caret-down"
           map-options
+          @update:model-value="emits('update:selected-start-time', $event)"
         />
         <div class="text-weight-medium q-mt-md">
           Endzeit<span class="text-red">*</span>
         </div>
         <q-select
-          v-model="selectedEndTime"
+          :model-value="selectedEndTime"
           dense
           outlined
           :options="endTimeOptions"
@@ -71,6 +72,7 @@
           emit-value
           map-options
           :disable="selectedStartTime === null"
+          @update:model-value="emits('update:selected-end-time', $event)"
         />
       </q-card-section>
       <q-card-actions class="row justify-end">
@@ -97,6 +99,7 @@ import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
 import useLog from 'src/hooks/useLog';
 import { BookableCourt } from '../../api/bookableCourtApi';
+import SpinningVolleyball from '../SpinningVolleyball.vue';
 
 interface TimeSlot {
   from: Date;
@@ -112,10 +115,18 @@ interface CourtWithSlots extends BookableCourt {
 interface Props {
   courtWithSlots: CourtWithSlots | null;
   courtId: number | null;
+  selectedStartTime: Date | null;
+  selectedEndTime: Date | null;
 }
 
 const props = defineProps<Props>();
-const emits = defineEmits(['update:model-value', 'update:court-id', 'booked']);
+const emits = defineEmits([
+  'update:model-value',
+  'update:court-id',
+  'update:selected-start-time',
+  'update:selected-end-time',
+  'booked',
+]);
 
 const { show } = useNotify();
 const { log } = useLog();
@@ -130,8 +141,7 @@ const loading: Ref<boolean> = ref(false);
 const selectedDate: Ref<Date> = ref(new Date());
 
 // form
-const selectedStartTime: Ref<Date | null> = ref(null);
-const selectedEndTime: Ref<Date | null> = ref(null);
+
 const timeSlots: ComputedRef<TimeSlot[]> = computed(() => {
   const slots = [];
   for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
@@ -174,13 +184,13 @@ const startTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed
 });
 
 const endTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
-  if (selectedEndTime.value === null) return startTimeOptions.value;
+  if (props.selectedEndTime === null) return startTimeOptions.value;
   const options: { label: string, value: Date }[] = [];
   const filteredSlots = props.courtWithSlots?.timeSlots || timeSlots.value;
 
   for (let i = 0; i < filteredSlots.length; i += 1) {
     const slot = filteredSlots[i];
-    const dateDifference = date.getDateDiff(slot.from, selectedStartTime.value || '', 'minutes');
+    const dateDifference = date.getDateDiff(slot.from, props.selectedStartTime || '', 'minutes');
     if (dateDifference > 0) {
       options.push({ label: date.formatDate(slot.from, 'HH:mm'), value: slot.from });
       if (slot.booking) {
@@ -197,13 +207,13 @@ const formattedDate: ComputedRef<string> = computed(
 
 function resetForm() {
   emits('update:model-value', false);
-  selectedStartTime.value = null;
-  selectedEndTime.value = null;
+  emits('update:selected-end-time', null);
+  emits('update:selected-start-time', null);
 }
 
 async function bookCourt() {
   if (
-    !user.value?.id || !selectedStartTime.value || !selectedEndTime.value || !props.courtId
+    !user.value?.id || !props.selectedStartTime || !props.selectedEndTime || !props.courtId
   ) {
     show(
       'Es fehlen Informationen um eine Buchung durchzuführen.',
@@ -215,8 +225,8 @@ async function bookCourt() {
     loading.value = true;
     const booking = await createBooking({
       bookedBy: user.value.id,
-      startTime: selectedStartTime.value,
-      endTime: selectedEndTime.value,
+      startTime: props.selectedStartTime,
+      endTime: props.selectedEndTime,
       bookedCourt: props.courtId,
     });
     show('Buchung erstellt.', NotifyType.Success);
