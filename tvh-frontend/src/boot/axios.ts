@@ -34,6 +34,7 @@ class HttpWrapper {
         encodeValuesOnly: true, // prettify URL
       }),
     });
+    this.axiosClient.defaults.timeout = 5000;
   }
 
   getAxiosStandardHeaders(): { [key: string]: string } {
@@ -136,6 +137,7 @@ class HttpWrapper {
       data: config?.data,
       headers: strippedHeaders,
       responseType: 'json',
+      readTimeout: 5000,
     };
   }
 

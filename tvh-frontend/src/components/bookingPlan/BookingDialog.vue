@@ -71,6 +71,7 @@
           dropdown-icon="ph-caret-down"
           emit-value
           map-options
+          reactive-rules
           :disable="selectedStartTime === null"
           @update:model-value="emits('update:selected-end-time', $event)"
         />
@@ -85,7 +86,6 @@
 
 <script setup lang="ts">
 import {
-  Booking,
   createBooking,
 } from 'src/api/bookingApi';
 import {
@@ -98,15 +98,9 @@ import useNotify, { NotifyType } from 'src/hooks/useNotify';
 import { useAuthStore } from 'src/stores/authStore';
 import { storeToRefs } from 'pinia';
 import useLog from 'src/hooks/useLog';
+import useBookingTimeSlots, { TimeSlot } from 'src/hooks/useBookingTimeSlots';
 import { BookableCourt } from '../../api/bookableCourtApi';
 import SpinningVolleyball from '../SpinningVolleyball.vue';
-
-interface TimeSlot {
-  from: Date;
-  to: Date;
-  label: string;
-  booking?: Booking;
-}
 
 interface CourtWithSlots extends BookableCourt {
   timeSlots: TimeSlot[]
@@ -131,8 +125,7 @@ const emits = defineEmits([
 const { show } = useNotify();
 const { log } = useLog();
 const authStore = useAuthStore();
-
-const bookableTimeRange = [10, 22];
+const { timeSlots } = useBookingTimeSlots();
 
 // refs
 const { user } = storeToRefs(authStore);
@@ -140,36 +133,6 @@ const courts: Ref<BookableCourt[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const selectedDate: Ref<Date> = ref(new Date());
 
-// form
-
-const timeSlots: ComputedRef<TimeSlot[]> = computed(() => {
-  const slots = [];
-  for (let i = bookableTimeRange[0]; i <= bookableTimeRange[1]; i += 1) {
-    if (i < bookableTimeRange[1]) {
-      const firstTime = date.adjustDate(selectedDate.value, {
-        hours: i,
-        minutes: 0,
-        seconds: 0,
-        milliseconds: 0,
-      });
-      const middleTime = date.addToDate(firstTime, { minutes: 30 });
-      const lastTime = date.addToDate(middleTime, { minutes: 30 });
-      slots.push({
-        from: firstTime,
-        to: middleTime,
-        label: `${i}:00 - ${i}:30`,
-        booking: undefined,
-      });
-      slots.push({
-        from: middleTime,
-        to: lastTime,
-        label: `${i}:30 - ${i + 1}:00`,
-        booking: undefined,
-      });
-    }
-  }
-  return slots;
-});
 const startTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(() => {
   const options: { label: string, value: Date }[] = [];
   const filteredSlots = props.courtWithSlots?.timeSlots.filter((slot) => !slot.booking)

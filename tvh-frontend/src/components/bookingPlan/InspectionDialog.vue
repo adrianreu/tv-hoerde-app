@@ -64,7 +64,7 @@
                     Startzeit<span class="text-red">*</span>
                   </div>
                   <q-select
-                    :model-value="selectedStartTime"
+                    v-model="selectedStartTime"
                     dense
                     outlined
                     :options="startTimeOptions"
@@ -74,13 +74,12 @@
                     emit-value
                     dropdown-icon="ph-caret-down"
                     map-options
-                    @update:model-value="emits('update:selected-start-time', $event)"
                   />
                   <div class="text-weight-medium q-mt-md">
                     Endzeit<span class="text-red">*</span>
                   </div>
                   <q-select
-                    :model-value="selectedEndTime"
+                    v-model="selectedEndTime"
                     dense
                     outlined
                     :options="endTimeOptions"
@@ -91,12 +90,12 @@
                     emit-value
                     map-options
                     :disable="selectedStartTime === null"
-                    @update:model-value="emits('update:selected-end-time', $event)"
                   />
                   <div class="text-weight-medium q-mt-md">
                     Nachricht<span class="text-red">*</span>
                   </div>
                   <q-input
+                    v-model="message"
                     dense
                     type="textarea"
                     outlined
@@ -105,7 +104,13 @@
                     clear-icon="ph-x-circle"
                   />
                 </q-card-section>
-                <q-btn class="full-width" unelevated color="primary" square>Anfrage absenden</q-btn>
+                <q-btn
+                  class="full-width"
+                  unelevated
+                  color="primary"
+                  square
+                  @click="sendChangeRequest"
+                >Anfrage absenden</q-btn>
               </q-card>
             </q-expansion-item>
           </div>
@@ -134,8 +139,11 @@ import { date } from 'quasar';
 import useApprovalDialog from 'src/hooks/useDeleteDialog';
 import useLog from 'src/hooks/useLog';
 import useNotify, { NotifyType } from 'src/hooks/useNotify';
-import { ref } from 'vue';
-import { ENGINE_METHOD_STORE } from 'constants';
+import {
+  ComputedRef, Ref, computed, ref,
+} from 'vue';
+import useBookingTimeSlots from 'src/hooks/useBookingTimeSlots';
+import { createChangeRequest } from 'src/api/changeRequestApi';
 
 interface Props {
   booking: Booking | null;
@@ -147,14 +155,63 @@ const emits = defineEmits(['update:model-value', 'deleted']);
 const { show } = useNotify();
 const { log } = useLog();
 const { checkApproval } = useApprovalDialog();
+const { timeSlots } = useBookingTimeSlots();
 const authStore = useAuthStore();
 
 const { userId } = storeToRefs(authStore);
 const loading = ref(false);
 const expanded = ref(false);
+const message = ref('');
+const selectedStartTime: Ref<Date | null> = ref(null);
+const selectedEndTime: Ref<Date | null> = ref(null);
 
 function close() {
   emits('update:model-value', false);
+}
+
+const startTimeOptions: ComputedRef<({ label: string, value: Date })[]> = computed(
+  () => timeSlots.value
+    .filter((slot) => (slot.from >= new Date(props.booking?.startTime || '')
+      && slot.to < new Date(props.booking?.endTime || '')))
+    .map((slot) => ({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to })),
+);
+
+const endTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(
+  () => timeSlots.value
+    .filter((slot) => (slot.from >= (selectedStartTime.value || new Date(props.booking?.startTime || ''))
+      && slot.to <= new Date(props.booking?.endTime || '')))
+    .map((slot) => ({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to })),
+);
+
+async function sendChangeRequest() {
+  // TODO add form validation
+  if (
+    selectedEndTime.value === null
+    || selectedStartTime.value === null
+    || props.booking?.id === undefined
+  ) {
+    return;
+  }
+  try {
+    loading.value = true;
+    await createChangeRequest({
+      from: selectedStartTime.value,
+      to: selectedEndTime.value,
+      message: message.value,
+      booking: props.booking?.id,
+      requestedBy: userId.value,
+    });
+    show('Anfrage abgesendet.', NotifyType.Success);
+    close();
+  } catch (error) {
+    log('InspectionDialog - sendChangeRequest', error);
+    show(
+      'Leider ist ein Fehler beim Absenden der Anfrage aufgetreten. Bitte versuche es erneut.',
+      NotifyType.Error,
+    );
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function doDeleteBooking() {

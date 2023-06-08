@@ -25,6 +25,11 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::booking.booking"
+    },
+    "requestedBy": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }
