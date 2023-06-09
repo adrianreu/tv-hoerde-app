@@ -30,6 +30,15 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "REQUESTED",
+        "ACCEPTED",
+        "REJECTED"
+      ],
+      "default": "REQUESTED"
     }
   }
 }

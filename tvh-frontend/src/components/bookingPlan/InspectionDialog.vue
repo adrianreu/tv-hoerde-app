@@ -171,14 +171,14 @@ function close() {
 
 const startTimeOptions: ComputedRef<({ label: string, value: Date })[]> = computed(
   () => timeSlots.value
-    .filter((slot) => (slot.from >= new Date(props.booking?.startTime || '')
+    .filter((slot) => (slot.from >= (new Date(props.booking?.startTime || ''))
       && slot.to < new Date(props.booking?.endTime || '')))
-    .map((slot) => ({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to })),
+    .map((slot) => ({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.from })),
 );
 
 const endTimeOptions: ComputedRef<{ label: string, value: Date }[]> = computed(
   () => timeSlots.value
-    .filter((slot) => (slot.from >= (selectedStartTime.value || new Date(props.booking?.startTime || ''))
+    .filter((slot) => (slot.from > (selectedStartTime.value || new Date(props.booking?.startTime || ''))
       && slot.to <= new Date(props.booking?.endTime || '')))
     .map((slot) => ({ label: date.formatDate(slot.to, 'HH:mm'), value: slot.to })),
 );

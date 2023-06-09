@@ -63,11 +63,17 @@
           <div class="column q-col-gutter-xs">
               <div class="col" v-for="slot in court.timeSlots" :key="slot.toString()">
                 <div
-                  :class="slot.booking ? 'bg-red-2 text-black' : 'bg-grey-3'"
+                  :class="{
+                      'bg-red-4 text-white': slot.booking?.bookedBy.id === userId,
+                      'bg-red-2 text-black': slot.booking && slot.booking?.bookedBy.id !== userId,
+                      'bg-grey-3': !slot.booking,
+                    }"
                   class="rounded-borders q-pa-xs"
                   @click="openBookingDialog(court.id, slot)"
                 >
-                  {{ slot.booking ? 'belegt' : 'frei' }}
+                  {{
+                  slot.booking?.bookedBy.id === userId
+                  ? 'gebucht' : slot.booking ? 'belegt' : 'frei' }}
                 </div>
               </div>
           </div>
@@ -116,6 +122,8 @@ import BottomAction from 'src/components/BottomAction.vue';
 import useLog from 'src/hooks/useLog';
 import InspectionDialog from 'src/components/bookingPlan/InspectionDialog.vue';
 import BookingDialog from 'src/components/bookingPlan/BookingDialog.vue';
+import { useAuthStore } from 'src/stores/authStore';
+import { storeToRefs } from 'pinia';
 import { BookableCourt, getBookableCourts } from '../api/bookableCourtApi';
 
 interface TimeSlot {
@@ -130,12 +138,14 @@ interface CourtWithSlots extends BookableCourt {
 }
 
 const route = useRoute();
+const authStore = useAuthStore();
 const { show } = useNotify();
 const { log } = useLog();
 
 const bookableTimeRange = [10, 22];
 
 // refs
+const { userId } = storeToRefs(authStore);
 const courts: Ref<BookableCourt[]> = ref([]);
 const bookings: Ref<Booking[]> = ref([]);
 const loading: Ref<boolean> = ref(false);

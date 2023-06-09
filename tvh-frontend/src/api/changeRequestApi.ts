@@ -1,15 +1,21 @@
 import { api } from 'src/boot/axios';
 import { StrapiGeneral } from 'src/interfaces/StrapiInterfaces';
-import { date } from 'quasar';
 import { mapStrapiData } from './strapiMapper';
 import { Booking } from './bookingApi';
 import { User } from './authApi';
+
+export enum ChangeRequestStatus {
+  REJECTED = 'REJECTED',
+  ACCEPTED = 'ACCEPTED',
+  REQUESTED = 'REQUESTED',
+}
 
 export interface ChangeRequest extends StrapiGeneral {
   from: Date;
   to: Date;
   message: string;
   booking: Booking;
+  status: ChangeRequestStatus;
   requestedBy: User;
 }
 
@@ -33,13 +39,24 @@ export async function getChangeRequestsForUser(userId?: number): Promise<ChangeR
         requestedBy: '*',
       },
       filters: {
-        booking: {
-          bookedBy: {
-            id: {
-              $eq: userId,
+        $or: [
+          {
+            booking: {
+              bookedBy: {
+                id: {
+                  $eq: userId,
+                },
+              },
             },
           },
-        },
+          {
+            requestedBy: {
+              id: {
+                $eq: userId,
+              },
+            },
+          },
+        ],
       },
     },
   });
@@ -56,5 +73,15 @@ export async function createChangeRequest(
       populate: '*',
     },
   });
+  return mapStrapiData(data.data);
+}
+
+export async function acceptChangeRequest(id: number | string): Promise<ChangeRequest> {
+  const { data } = await api.post(`/api/change-requests/${id}/accept`);
+  return mapStrapiData(data.data);
+}
+
+export async function rejectChangeRequest(id: number | string): Promise<ChangeRequest> {
+  const { data } = await api.post(`/api/change-requests/${id}/reject`);
   return mapStrapiData(data.data);
 }
