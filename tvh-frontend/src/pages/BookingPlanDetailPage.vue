@@ -64,15 +64,15 @@
               <div class="col" v-for="slot in court.timeSlots" :key="slot.toString()">
                 <div
                   :class="{
-                      'bg-red-4 text-white': slot.booking?.bookedBy.id === userId,
-                      'bg-red-2 text-black': slot.booking && slot.booking?.bookedBy.id !== userId,
+                      'bg-red-4 text-white': slot.booking?.bookedBy?.id === userId,
+                      'bg-red-2 text-black': slot.booking && slot.booking?.bookedBy?.id !== userId,
                       'bg-grey-3': !slot.booking,
                     }"
                   class="rounded-borders q-pa-xs"
                   @click="openBookingDialog(court.id, slot)"
                 >
                   {{
-                  slot.booking?.bookedBy.id === userId
+                  slot.booking?.bookedBy?.id === userId
                   ? 'gebucht' : slot.booking ? 'belegt' : 'frei' }}
                 </div>
               </div>
@@ -80,7 +80,7 @@
         </div>
       </div>
       <bottom-action>
-        <q-btn flat class="full-width" @click="$event => openBookingDialog()">
+        <q-btn flat class="full-width" @click="openBookingDialog()">
           <q-icon name="ph-volleyball" class="q-mr-sm"/>
           Buchung anlegen
         </q-btn>
